@@ -297,65 +297,21 @@ button:disabled {
     font-family: 'Roboto', Arial, sans-serif;
 }
 
-.ad-preview-google-ui {
-    padding: 10px 4px;
-}
-
-.ad-preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-}
-
-.ad-preview-icon {
-    width: 24px;
-    height: 24px;
-    color: #5f6368;
-}
-
-.google-logo {
-    height: 22px;
-}
-
-.ad-preview-profile-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #d8d8d8;
-}
-
-.ad-preview-search-bar {
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-    border: 1px solid #dfe1e5;
-    border-radius: 24px;
-    padding: 8px 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 6px rgba(32,33,36,.28);
-}
-
-.ad-preview-filters {
-    display: flex;
-    gap: 8px;
-    padding-bottom: 8px;
+.ad-preview-custom-header {
+    text-align: center;
+    padding: 1rem;
     border-bottom: 1px solid #ebebeb;
 }
 
-.filter-chip {
-    height: 12px;
-    border-radius: 12px;
-    background-color: #f1f3f4;
+.ad-preview-custom-header h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #5f6368;
+    margin: 0;
 }
-.filter-chip:nth-child(1) { width: 40px; border-bottom: 2px solid #1a73e8; }
-.filter-chip:nth-child(2) { width: 50px; }
-.filter-chip:nth-child(3) { width: 45px; }
-.filter-chip:nth-child(4) { width: 60px; }
 
 .ad-preview-unit {
-    margin-top: 16px;
-    padding: 0 4px;
+    padding: 16px 4px 0 4px;
 }
 
 .ad-preview-sponsored {
@@ -499,9 +455,33 @@ button:disabled {
     line-height: 1.5;
 }
 
+.keyword-type-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary-color);
+    margin: -0.25rem 0 1rem 0;
+    line-height: 1.5;
+}
+
 .copy-all-button {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
+}
+
+.display-path-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    flex-wrap: wrap;
+}
+
+.display-path-container .editable-field {
+    flex: 1 1 0;
+    min-width: 80px;
+}
+
+.display-path-container > span {
+    color: var(--text-secondary-color);
 }
 
 .sitelink-url-input {
