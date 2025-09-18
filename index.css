@@ -418,6 +418,56 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: margin-bottom 0.4s ease-out;
+}
+
+.result-card.is-collapsed .result-card-header {
+    margin-bottom: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collapse-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.collapse-toggle:hover {
+    background-color: var(--input-bg-color);
+    color: var(--primary-color);
+}
+
+.collapse-toggle svg {
+    transition: transform 0.3s ease-out;
+}
+
+.result-card.is-collapsed .collapse-toggle svg {
+    transform: rotate(-180deg);
+}
+
+.result-card-body {
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+    max-height: 5000px;
+    opacity: 1;
+}
+
+.result-card.is-collapsed .result-card-body {
+    max-height: 0;
+    opacity: 0;
 }
 
 .result-card h3 {
@@ -548,6 +598,18 @@ body.light-mode .negative-keywords-list {
     padding: 0.5rem;
     border-radius: 6px;
     transition: background-color 0.2s ease;
+    gap: 0.5rem;
+}
+
+.editable-field-text {
+    flex-grow: 1;
+    word-break: break-word;
+}
+
+.char-counter-static.error {
+    color: var(--error-color);
+    font-size: 1.2rem;
+    flex-shrink: 0;
 }
 
 .editable-field:hover {
@@ -557,18 +619,45 @@ body.light-mode .negative-keywords-list {
 .editable-field .field-actions {
     display: flex;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .editable-field.editing {
     padding: 0;
+    gap: 0.5rem;
+    align-items: flex-start;
 }
 .editable-field.editing:hover {
     background: none;
 }
 
+.edit-input-wrapper {
+    flex-grow: 1;
+}
+
 .editable-field.editing input {
     padding: 0.5rem;
-    flex-grow: 1;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+.char-counter {
+    display: block;
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-secondary-color);
+    padding: 0 0.5rem;
+}
+
+.char-counter.error {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 4px;
 }
 
 .edit-action-button {
@@ -577,7 +666,6 @@ body.light-mode .negative-keywords-list {
     height: 32px;
     font-size: 1.2rem;
     flex-shrink: 0;
-    margin-left: 0.5rem;
     line-height: 1;
 }
 .save-button {

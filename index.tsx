@@ -69,7 +69,8 @@ const EditableField: FC<{
     initialValue: string;
     onSave: (newValue: string) => void;
     onCopy: (text: string) => void;
-}> = ({ initialValue, onSave, onCopy }) => {
+    maxLength?: number;
+}> = ({ initialValue, onSave, onCopy, maxLength }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState(initialValue);
 
@@ -85,22 +86,40 @@ const EditableField: FC<{
     if (isEditing) {
         return (
             <div className="editable-field editing">
-                <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                    autoFocus
-                />
-                <button onClick={handleSave} className="edit-action-button save-button">✓</button>
-                <button onClick={() => setIsEditing(false)} className="edit-action-button cancel-button">×</button>
+                <div className="edit-input-wrapper">
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                        autoFocus
+                        maxLength={maxLength}
+                    />
+                    {maxLength && (
+                        <span className={`char-counter ${value.length > maxLength ? 'error' : ''}`}>
+                            {value.length}/{maxLength}
+                        </span>
+                    )}
+                </div>
+                <div className="edit-actions">
+                    <button onClick={handleSave} className="edit-action-button save-button">✓</button>
+                    <button onClick={() => setIsEditing(false)} className="edit-action-button cancel-button">×</button>
+                </div>
             </div>
         );
     }
 
+    const isOverLimit = maxLength !== undefined && value.length > maxLength;
+    const displayValue = isOverLimit ? value.substring(0, maxLength) : value;
+
     return (
         <div className="editable-field">
-            <span>{value}</span>
+            <span className="editable-field-text" title={isOverLimit ? value : undefined}>{displayValue}</span>
+            {isOverLimit && (
+                <span className="char-counter-static error" aria-label={`Exceeded character limit. ${value.length} of ${maxLength}`}>
+                    ⚠️
+                </span>
+            )}
             <div className="field-actions">
                  <button className="icon-button" onClick={() => setIsEditing(true)} aria-label="Edit">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -113,18 +132,30 @@ const EditableField: FC<{
     );
 };
 
-const ResultCard: FC<{ title: string; icon: string; children: ReactNode; fullWidth?: boolean; headerContent?: ReactNode }> = ({ title, icon, children, fullWidth = false, headerContent }) => (
-    <div className={`result-card ${fullWidth ? 'full-width' : ''}`}>
-        <div className="result-card-header">
-            <h3>
-                <span role="img" aria-hidden="true" style={{ marginRight: '10px' }}>{icon}</span>
-                {title}
-            </h3>
-            {headerContent}
+const ResultCard: FC<{ title: string; icon: string; children: ReactNode; fullWidth?: boolean; headerContent?: ReactNode }> = ({ title, icon, children, fullWidth = false, headerContent }) => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const toggleCollapse = () => setIsCollapsed(!isCollapsed);
+
+    return (
+        <div className={`result-card ${fullWidth ? 'full-width' : ''} ${isCollapsed ? 'is-collapsed' : ''}`}>
+            <div className="result-card-header" onClick={toggleCollapse}>
+                <h3>
+                    <span role="img" aria-hidden="true" style={{ marginRight: '10px' }}>{icon}</span>
+                    {title}
+                </h3>
+                <div className="header-actions" onClick={(e) => e.stopPropagation()}>
+                    {headerContent}
+                    <button className="collapse-toggle" onClick={toggleCollapse} aria-expanded={!isCollapsed} aria-label={isCollapsed ? 'Expandir' : 'Recolher'}>
+                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+            <div className="result-card-body">
+                {children}
+            </div>
         </div>
-        {children}
-    </div>
-);
+    );
+};
 
 const AdPreview: FC<{
     headline1: string;
@@ -537,12 +568,14 @@ const App: React.FC = () => {
                                         initialValue={campaignData.displayPath1}
                                         onSave={(v) => handleUpdateData(['displayPath1'], v)}
                                         onCopy={handleCopy}
+                                        maxLength={15}
                                     />
                                     <span>/</span>
                                     <EditableField
                                         initialValue={campaignData.displayPath2}
                                         onSave={(v) => handleUpdateData(['displayPath2'], v)}
                                         onCopy={handleCopy}
+                                        maxLength={15}
                                     />
                                 </div>
                             </ResultCard>
@@ -571,7 +604,7 @@ const App: React.FC = () => {
                                 headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.headlines)}>Copiar Todas</button>}
                             >
                                 <p className="card-description">Quanto mais idéias de títulos você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
-                                <ul>{campaignData.headlines.map((h, i) => <li key={`h-${i}`}><EditableField initialValue={h} onSave={(v) => handleUpdateData(['headlines', i], v)} onCopy={handleCopy} /></li>)}</ul>
+                                <ul>{campaignData.headlines.map((h, i) => <li key={`h-${i}`}><EditableField initialValue={h} onSave={(v) => handleUpdateData(['headlines', i], v)} onCopy={handleCopy} maxLength={30} /></li>)}</ul>
                             </ResultCard>
                             
                             <ResultCard 
@@ -581,7 +614,7 @@ const App: React.FC = () => {
                                 headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.descriptions)}>Copiar Todas</button>}
                             >
                                 <p className="card-description">Quanto mais idéias de descrições você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
-                                <ul>{campaignData.descriptions.map((d, i) => <li key={`d-${i}`}><EditableField initialValue={d} onSave={(v) => handleUpdateData(['descriptions', i], v)} onCopy={handleCopy} /></li>)}</ul>
+                                <ul>{campaignData.descriptions.map((d, i) => <li key={`d-${i}`}><EditableField initialValue={d} onSave={(v) => handleUpdateData(['descriptions', i], v)} onCopy={handleCopy} maxLength={90} /></li>)}</ul>
                             </ResultCard>
 
                             <ResultCard 
@@ -607,10 +640,10 @@ const App: React.FC = () => {
                                 <div className="sitelinks-grid">
                                     {campaignData.sitelinks.map((s, i) => (
                                         <div key={`sl-${i}`} className="sitelink-item">
-                                            <strong><EditableField initialValue={s.text} onSave={(v) => handleUpdateData(['sitelinks', i, 'text'], v)} onCopy={handleCopy} /></strong>
+                                            <strong><EditableField initialValue={s.text} onSave={(v) => handleUpdateData(['sitelinks', i, 'text'], v)} onCopy={handleCopy} maxLength={25} /></strong>
                                             <div className="sitelink-descriptions">
-                                                <EditableField initialValue={s.description1} onSave={(v) => handleUpdateData(['sitelinks', i, 'description1'], v)} onCopy={handleCopy} />
-                                                <EditableField initialValue={s.description2} onSave={(v) => handleUpdateData(['sitelinks', i, 'description2'], v)} onCopy={handleCopy} />
+                                                <EditableField initialValue={s.description1} onSave={(v) => handleUpdateData(['sitelinks', i, 'description1'], v)} onCopy={handleCopy} maxLength={35} />
+                                                <EditableField initialValue={s.description2} onSave={(v) => handleUpdateData(['sitelinks', i, 'description2'], v)} onCopy={handleCopy} maxLength={35} />
                                             </div>
                                             <small>{formatSitelinkUrl(sitelinkBaseUrl, i)}</small>
                                         </div>
@@ -624,7 +657,7 @@ const App: React.FC = () => {
                                 headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.callouts)}>Copiar Todas</button>}
                             >
                                 <p className="card-description">As frases de destaque podem melhorar seus anúncios de texto por meio da promoção de ofertas exclusivas para os compradores, como frete grátis ou atendimento ao cliente 24 horas.</p>
-                                <ul>{campaignData.callouts.map((c, i) => <li key={`c-${i}`}><EditableField initialValue={c} onSave={(v) => handleUpdateData(['callouts', i], v)} onCopy={handleCopy} /></li>)}</ul>
+                                <ul>{campaignData.callouts.map((c, i) => <li key={`c-${i}`}><EditableField initialValue={c} onSave={(v) => handleUpdateData(['callouts', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
                             </ResultCard>
                             
                             <ResultCard 
@@ -633,7 +666,7 @@ const App: React.FC = () => {
                                 headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.structuredSnippets)}>Copiar Todas</button>}
                             >
                                 <p className="card-description">Snippets estruturados são recursos que destacam aspectos específicos dos seus produtos e serviços. Eles aparecem abaixo do seu anúncio de texto em formato de cabeçalho (por exemplo: "Destinos") e lista de valores (por exemplo: "Havaí, Costa Rica, África do Sul").</p>
-                                <ul>{campaignData.structuredSnippets.map((s, i) => <li key={`s-${i}`}><EditableField initialValue={s} onSave={(v) => handleUpdateData(['structuredSnippets', i], v)} onCopy={handleCopy} /></li>)}</ul>
+                                <ul>{campaignData.structuredSnippets.map((s, i) => <li key={`s-${i}`}><EditableField initialValue={s} onSave={(v) => handleUpdateData(['structuredSnippets', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
                             </ResultCard>
                             
                            <ResultCard 
