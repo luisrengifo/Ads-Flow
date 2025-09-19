@@ -606,7 +606,13 @@ const App: React.FC = () => {
                 },
             });
 
-            const parsedData = JSON.parse(result.text);
+            const responseText = result.text;
+            if (!responseText) {
+                setError('A resposta da IA estava vazia. Tente novamente ou ajuste seu pedido.');
+                return;
+            }
+
+            const parsedData = JSON.parse(responseText);
             setCampaignData(parsedData);
             setSitelinkBaseUrl(parsedData.finalUrl || 'https://sitedocliente.com');
 
