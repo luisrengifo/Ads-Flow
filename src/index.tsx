@@ -5,14 +5,14 @@ import { createClient, User, SupabaseClient } from '@supabase/supabase-js';
 import './index.css';
 
 // --- ENVIRONMENT & CLIENT SETUP ---
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// FIX: Use process.env.API_KEY for the Gemini API key per coding guidelines.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const isConfigured = GEMINI_API_KEY && SUPABASE_URL && SUPABASE_ANON_KEY;
+const isConfigured = process.env.API_KEY && SUPABASE_URL && SUPABASE_ANON_KEY;
 
 const supabase: SupabaseClient | null = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-const ai: GoogleGenAI | null = isConfigured ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+const ai: GoogleGenAI | null = isConfigured ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
 // --- TYPES AND SCHEMAS ---
 const campaignSchema = {
@@ -95,8 +95,9 @@ const PLAN_LIMITS: Record<Plan, number> = {
 const ConfigurationWarning: FC = () => (
     <div className="config-warning">
         <h2>Configuração Necessária</h2>
+{/* FIX: Updated environment variable name for Gemini API key in the warning message. */}
         <p>
-            A aplicação não está configurada corretamente. Por favor, configure as variáveis de ambiente <code>VITE_GEMINI_API_KEY</code>, <code>VITE_SUPABASE_URL</code>, e <code>VITE_SUPABASE_ANON_KEY</code> em seu provedor de hospedagem (ex: Vercel) para habilitar o funcionamento completo.
+            A aplicação não está configurada corretamente. Por favor, configure as variáveis de ambiente <code>API_KEY</code>, <code>VITE_SUPABASE_URL</code>, e <code>VITE_SUPABASE_ANON_KEY</code> em seu provedor de hospedagem (ex: Vercel) para habilitar o funcionamento completo.
         </p>
          <p>
             Para desenvolvimento local, crie um arquivo <code>.env.local</code> na raiz do projeto com estas chaves.
