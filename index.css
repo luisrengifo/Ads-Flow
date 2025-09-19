@@ -91,10 +91,25 @@ header .container {
     gap: 1rem;
 }
 
-.user-info span {
+.user-plan-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     font-size: 0.9rem;
-    color: var(--text-secondary-color);
 }
+
+.user-plan-info strong {
+    color: var(--primary-color);
+}
+
+.user-plan-info .usage-separator {
+    color: var(--border-color);
+}
+
 
 .logout-button {
     background-color: var(--error-color);
@@ -156,7 +171,7 @@ header .container {
 }
 
 
-/* --- Auth Modal --- */
+/* --- Auth & Upgrade Modal --- */
 .auth-modal-overlay {
     position: fixed;
     top: 0;
@@ -181,6 +196,10 @@ header .container {
     border: 1px solid var(--border-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     animation: fadeIn 0.3s ease-out;
+}
+
+.auth-modal.upgrade-modal {
+    max-width: 700px;
 }
 
 .auth-modal h2 {
@@ -262,6 +281,71 @@ header .container {
     color: var(--success-color);
     text-align: center;
     margin-top: 1rem;
+}
+
+/* Upgrade Modal Specifics */
+.plans-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.plan-card {
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.plan-card.current {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+}
+
+.plan-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.plan-card .plan-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.plan-card ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.plan-card li {
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.plan-card .generate-button {
+    width: 100%;
+    text-decoration: none;
+}
+
+.disabled-link {
+    background: var(--text-secondary-color);
+    cursor: not-allowed;
+    pointer-events: none;
+    animation: none;
+}
+
+.disabled-link:hover {
+    background: var(--text-secondary-color);
+    transform: none;
 }
 
 /* --- Sales Page --- */
@@ -1066,5 +1150,13 @@ footer {
     header .container {
         flex-direction: column;
         gap: 1rem;
+    }
+    
+    .user-info {
+        flex-direction: column;
+    }
+    
+    .plans-container {
+        grid-template-columns: 1fr;
     }
 }

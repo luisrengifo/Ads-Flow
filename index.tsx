@@ -15,6 +15,7 @@ const isSupabaseConfigured = SUPABASE_URL !== 'COLE_SUA_URL_SUPABASE_AQUI' && SU
 const supabase: SupabaseClient | null = isSupabaseConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
+// --- TYPES AND SCHEMAS ---
 const campaignSchema = {
     type: Type.OBJECT,
     properties: {
@@ -53,6 +54,14 @@ const campaignSchema = {
     required: ["finalUrl", "displayPath1", "displayPath2", "headlines", "descriptions", "companyName", "keywords", "sitelinks", "callouts", "structuredSnippets", "negativeKeywords"]
 };
 
+type Plan = 'free' | 'business' | 'agency';
+
+interface UserProfile {
+    id: string;
+    plan: Plan;
+    generations_used: number;
+    generation_reset_date: string;
+}
 
 interface CampaignData {
     finalUrl: string;
@@ -76,6 +85,14 @@ interface CampaignData {
     negativeKeywords: string[];
 }
 
+const PLAN_LIMITS: Record<Plan, number> = {
+    free: 2,
+    business: 15,
+    agency: Infinity
+};
+
+// --- COMPONENTS ---
+
 const ConfigurationWarning: FC = () => (
     <div className="config-warning">
         <h2>Configuração Necessária</h2>
@@ -84,7 +101,6 @@ const ConfigurationWarning: FC = () => (
         </p>
     </div>
 );
-
 
 const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClose, onSuccess }) => {
     const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -105,7 +121,7 @@ const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClos
         setMessage('');
 
         if (mode === 'register') {
-            const { error } = await supabase.auth.signUp({
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -115,12 +131,16 @@ const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClos
                     }
                 }
             });
-            if (error) {
-                setError(error.message);
-            } else {
+
+            if (signUpError) {
+                setError(signUpError.message);
+            } else if (data.user) {
+                // O gatilho no Supabase cuidará da criação do perfil
                 setMessage('Verifique seu e-mail para confirmar o cadastro!');
-                // Wait a bit before closing so user can see the message
-                setTimeout(onSuccess, 3000);
+                setTimeout(() => {
+                    onSuccess();
+                    onClose();
+                }, 3000);
             }
         } else {
             const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -175,6 +195,64 @@ const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClos
                     </button>
                 </form>
                 
+                <button className="close-modal-button" onClick={onClose} aria-label="Fechar">×</button>
+            </div>
+        </div>
+    );
+};
+
+const UpgradeModal: FC<{
+    onClose: () => void;
+    currentPlan: Plan;
+    user: User | null;
+}> = ({ onClose, currentPlan, user }) => {
+    // Adiciona o e-mail do usuário como parâmetro de URL para rastreamento no checkout
+    const businessUrl = `https://pay.kiwify.com.br/L2SO74f?email=${user?.email || ''}`;
+    const agencyUrl = `https://pay.kiwify.com.br/1YNBAZH?email=${user?.email || ''}`;
+
+    return (
+        <div className="auth-modal-overlay" onClick={onClose}>
+            <div className="auth-modal upgrade-modal" onClick={(e) => e.stopPropagation()}>
+                <h2>Faça um Upgrade</h2>
+                <p>Você atingiu o limite de gerações do seu plano. Faça upgrade para continuar usando o Ads Flow.</p>
+                <div className="plans-container">
+                    <div className={`plan-card ${currentPlan === 'business' ? 'current' : ''}`}>
+                        <h3>Plano Negócio</h3>
+                        <div className="plan-price">15 Gerações/Mês</div>
+                        <ul>
+                            <li><span role="img" aria-label="check">✅</span> Estruturas completas</li>
+                            <li><span role="img" aria-label="check">✅</span> Palavras-chave e extensões</li>
+                            <li><span role="img" aria-label="check">✅</span> Exportação em TXT, CSV, PDF</li>
+                        </ul>
+                        <a 
+                            href={businessUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`generate-button ${currentPlan === 'business' ? 'disabled-link' : ''}`}
+                            aria-disabled={currentPlan === 'business'}
+                        >
+                            {currentPlan === 'business' ? 'Plano Atual' : 'Fazer Upgrade'}
+                        </a>
+                    </div>
+                    <div className={`plan-card ${currentPlan === 'agency' ? 'current' : ''}`}>
+                        <h3>Plano Agência</h3>
+                        <div className="plan-price">Gerações Ilimitadas</div>
+                         <ul>
+                            <li><span role="img" aria-label="check">✅</span> Tudo do Plano Negócio</li>
+                            <li><span role="img" aria-label="check">✅</span> Sem limites de uso</li>
+                            <li><span role="img" aria-label="check">✅</span> Suporte prioritário</li>
+                        </ul>
+                        <a 
+                            href={agencyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`generate-button ${currentPlan === 'agency' ? 'disabled-link' : ''}`}
+                            aria-disabled={currentPlan === 'agency'}
+                        >
+                            {currentPlan === 'agency' ? 'Plano Atual' : 'Fazer Upgrade'}
+                        </a>
+                    </div>
+                </div>
                 <button className="close-modal-button" onClick={onClose} aria-label="Fechar">×</button>
             </div>
         </div>
@@ -406,8 +484,12 @@ const App: React.FC = () => {
     const [copiedText, setCopiedText] = useState<string | null>(null);
     const [theme, setTheme] = useState('dark');
     const [sitelinkBaseUrl, setSitelinkBaseUrl] = useState('');
+    
     const [user, setUser] = useState<User | null>(null);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
 
     // Render a warning if Supabase is not configured
     if (!isSupabaseConfigured || !supabase) {
@@ -428,16 +510,36 @@ const App: React.FC = () => {
     useEffect(() => {
         document.body.className = `${theme}-mode`;
     }, [theme]);
+    
+    const fetchUserProfile = async (currentUser: User) => {
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (data) {
+            setProfile(data);
+        } else if (error) {
+            console.error('Error fetching profile:', error);
+            // Optionally create a profile if it doesn't exist for some reason
+        }
+    };
+
 
     useEffect(() => {
         const getSession = async () => {
-            const { data } = await supabase.auth.getSession();
-            setUser(data.session?.user ?? null);
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+            if(session?.user) {
+                fetchUserProfile(session.user);
+            }
         };
         getSession();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            if (currentUser) {
+                fetchUserProfile(currentUser);
+            } else {
+                setProfile(null);
+            }
         });
 
         return () => subscription.unsubscribe();
@@ -448,7 +550,9 @@ const App: React.FC = () => {
     };
 
     const handleGenerate = async () => {
-        if (!user) {
+        if (!supabase) return;
+        
+        if (!user || !profile) {
             setShowAuthModal(true);
             return;
         }
@@ -457,6 +561,35 @@ const App: React.FC = () => {
             setError('Por favor, descreva o contexto da sua campanha.');
             return;
         }
+        
+        // --- LIMIT CHECK LOGIC ---
+        const now = new Date();
+        const lastReset = new Date(profile.generation_reset_date);
+        let currentUsage = profile.generations_used;
+
+        // Reset if the current month is different from the last reset month
+        if (now.getFullYear() > lastReset.getFullYear() || now.getMonth() > lastReset.getMonth()) {
+            currentUsage = 0;
+            const { data: updatedProfile, error: updateError } = await supabase
+                .from('profiles')
+                .update({ generations_used: 0, generation_reset_date: now.toISOString() })
+                .eq('id', user.id)
+                .select()
+                .single();
+            if (updateError) console.error("Error resetting usage:", updateError);
+            else setProfile(updatedProfile); // Update state with fresh data from DB
+        }
+
+        const userLimit = PLAN_LIMITS[profile.plan] ?? 2;
+
+        if (currentUsage >= userLimit) {
+            setError("Você atingiu o limite de gerações do seu plano. Faça upgrade para continuar.");
+            setShowUpgradeModal(true);
+            return;
+        }
+
+        // --- END LIMIT CHECK ---
+
         setLoading(true);
         setError('');
         setCampaignData(null);
@@ -475,6 +608,13 @@ const App: React.FC = () => {
             const parsedData = JSON.parse(result.text);
             setCampaignData(parsedData);
             setSitelinkBaseUrl(parsedData.finalUrl || 'https://sitedocliente.com');
+
+            // --- INCREMENT USAGE ---
+            const newUsage = currentUsage + 1;
+            const { error: updateError } = await supabase.from('profiles').update({ generations_used: newUsage }).eq('id', user.id);
+            if (updateError) console.error("Failed to update generation count:", updateError);
+            else setProfile(prev => prev ? { ...prev, generations_used: newUsage } : null);
+
         } catch (e) {
             console.error(e);
             setError('Ocorreu um erro ao gerar a campanha. Tente novamente.');
@@ -698,6 +838,20 @@ const App: React.FC = () => {
         const formattedKeywords = campaignData.negativeKeywords.map(k => `-${k}`).join(', ');
         handleCopy(formattedKeywords);
     };
+    
+    const renderUserPlan = () => {
+        if (!profile) return null;
+        const limit = PLAN_LIMITS[profile.plan];
+        const usageText = isFinite(limit) ? `${profile.generations_used}/${limit}` : 'Ilimitado';
+        const planName = profile.plan.charAt(0).toUpperCase() + profile.plan.slice(1);
+        return (
+            <div className="user-plan-info">
+                <span>Plano: <strong>{planName}</strong></span>
+                <span className="usage-separator">|</span>
+                <span>Uso: {usageText}</span>
+            </div>
+        );
+    };
 
     return (
         <>
@@ -710,7 +864,7 @@ const App: React.FC = () => {
                         </button>
                         {user ? (
                             <div className="user-info">
-                                <span>{user.email}</span>
+                                {renderUserPlan()}
                                 <button onClick={() => supabase.auth.signOut()} className="logout-button">Sair</button>
                             </div>
                         ) : (
@@ -941,11 +1095,12 @@ const App: React.FC = () => {
                 onClose={() => setShowAuthModal(false)}
                 onSuccess={() => {
                     setShowAuthModal(false);
-                    // Automatically trigger generation after successful login/signup if prompt is filled
-                    if (prompt) {
-                        handleGenerate();
-                    }
                 }}
+            />}
+            {showUpgradeModal && profile && <UpgradeModal 
+                currentPlan={profile.plan}
+                user={user}
+                onClose={() => setShowUpgradeModal(false)}
             />}
         </>
     );
