@@ -1,16 +1,12 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // The third parameter '' allows loading variables without VITE_ prefix.
-  const env = loadEnv(mode, process.cwd(), '');
-  return {
-    plugins: [react()],
-    define: {
-      // Expose API_KEY to the client-side code
-      'process.env.API_KEY': JSON.stringify(env.API_KEY)
-    }
+export default defineConfig({
+  plugins: [react()],
+  define: {
+    // This configuration directly uses the environment variable provided by Vercel
+    // during the build process, ensuring the API_KEY is correctly exposed to the app.
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
   }
 })
