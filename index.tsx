@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, FC, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -415,7 +414,9 @@ const App: React.FC = () => {
         return (
             <div className="container">
                  <header>
-                    <h1 className="app-name"><span>Ads Flow</span></h1>
+                    <div className="container">
+                         <h1 className="app-name"><span>Ads Flow</span></h1>
+                    </div>
                 </header>
                 <main>
                     <ConfigurationWarning />
@@ -699,238 +700,242 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="container">
+        <>
             <header>
-                 <h1 className="app-name"><span>Ads Flow</span></h1>
-                 <div className="header-controls">
-                    {user ? (
-                        <div className="user-info">
-                            <span>{user.email}</span>
-                            <button onClick={() => supabase.auth.signOut()} className="logout-button">Sair</button>
-                        </div>
-                    ) : (
-                        <button onClick={() => setShowAuthModal(true)}>Login / Registrar</button>
-                    )}
-                    <button onClick={toggleTheme} className="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-                        {theme === 'dark' ? '🌙' : '☀️'}
-                    </button>
+                 <div className="container">
+                    <h1 className="app-name"><span>Ads Flow</span></h1>
+                    <div className="header-controls">
+                        <button onClick={toggleTheme} className="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+                            {theme === 'dark' ? '🌙' : '☀️'}
+                        </button>
+                        {user ? (
+                            <div className="user-info">
+                                <span>{user.email}</span>
+                                <button onClick={() => supabase.auth.signOut()} className="logout-button">Sair</button>
+                            </div>
+                        ) : (
+                            <button onClick={() => setShowAuthModal(true)}>Login / Registrar</button>
+                        )}
+                    </div>
                  </div>
             </header>
             
-            <SalesPage />
+            <div className="container">
+                <SalesPage />
 
-            <main id="generator">
-                <div className="input-section">
-                    <h2 className="title-neon">
-                        É Inteligênte, É Único, É <span className="title-gradient">Ads Flow</span>
-                    </h2>
-                    <p>
-                       Crie campanhas no Google Ads em <strong className="highlight-white">segundos</strong>. Insira o contexto da sua marca, produto ou serviço e deixe que o Ads Flow gere uma estrutura <strong className="highlight-white">completa e otimizada</strong> para a Rede de Pesquisa.
-                    </p>
-                    <textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="Ex: Crie uma campanha para uma loja de Sapatos em São Paulo, focada no público feminino entre 25-40 anos. Destaque o frete grátis e a produção sustentável."
-                        disabled={loading}
-                        rows={5}
-                    />
-                    <button className="generate-button" onClick={handleGenerate} disabled={loading}>
-                        {loading ? (
-                            <div className="spinner"></div>
-                        ) : (
-                            'Gerar Estrutura'
-                        )}
-                    </button>
-                    {error && <p className="error-message">{error}</p>}
-                </div>
-
-                {loading && (
-                     <div className="loading-state">
-                        <div className="spinner-large"></div>
-                        <p>Estamos construindo uma Estrutura de Campanhas Google Ads na Rede de Pesquisa...</p>
+                <main id="generator">
+                    <div className="input-section">
+                        <h2 className="title-neon">
+                            É Inteligênte, É Único, É <span className="title-gradient">Ads Flow</span>
+                        </h2>
+                        <p>
+                           Crie campanhas no Google Ads em <strong className="highlight-white">segundos</strong>. Insira o contexto da sua marca, produto ou serviço e deixe que o Ads Flow gere uma estrutura <strong className="highlight-white">completa e otimizada</strong> para a Rede de Pesquisa.
+                        </p>
+                        <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Ex: Crie uma campanha para uma loja de Sapatos em São Paulo, focada no público feminino entre 25-40 anos. Destaque o frete grátis e a produção sustentável."
+                            disabled={loading}
+                            rows={5}
+                        />
+                        <button className="generate-button" onClick={handleGenerate} disabled={loading}>
+                            {loading ? (
+                                <div className="spinner"></div>
+                            ) : (
+                                'Gerar Estrutura'
+                            )}
+                        </button>
+                        {error && <p className="error-message">{error}</p>}
                     </div>
-                )}
-                
-                {campaignData && (
-                    <div className="results-section">
-                        <div className="export-controls">
-                           <h3>Exportar Estrutura</h3>
-                           <div className="export-buttons">
-                               <button onClick={() => handleExport('txt')}>
-                                   <span role="img" aria-hidden="true">📄</span> Exportar TXT
-                               </button>
-                               <button onClick={() => handleExport('csv')}>
-                                   <span role="img" aria-hidden="true">📊</span> Exportar CSV
-                               </button>
-                               <button onClick={handlePrint}>
-                                   <span role="img" aria-hidden="true">🖨️</span> Imprimir / PDF
-                               </button>
-                           </div>
-                       </div>
 
-                         <div className="ad-previews-grid">
-                           {[0, 1, 2].map(i => (
-                               <AdPreview 
-                                   key={i}
-                                   headline1={campaignData.headlines?.[i % campaignData.headlines.length] || ''}
-                                   headline2={campaignData.headlines?.[(i + 1) % campaignData.headlines.length] || ''}
-                                   description1={campaignData.descriptions?.[i % campaignData.descriptions.length] || ''}
-                                   finalUrl={campaignData.finalUrl}
-                                   displayPath1={campaignData.displayPath1}
-                               />
-                           ))}
-                       </div>
-                       
-                        <div className="results-grid">
-                            <ResultCard 
-                                icon="🌐" 
-                                title="URL Final"
-                            >
-                                <p className="card-description">Isso vai ser usado para sugerir recursos para seu anúncio.</p>
-                                <EditableField
-                                    initialValue={campaignData.finalUrl}
-                                    onSave={(v) => handleUpdateData(['finalUrl'], v)}
-                                    onCopy={handleCopy}
-                                />
-                            </ResultCard>
-
-                            <ResultCard 
-                                icon="🛣️" 
-                                title="Caminho de Exibição"
-                            >
-                                <p className="card-description">Os campos "Caminho" fazem parte do URL de visualização em anúncios responsivos de pesquisa e geralmente são exibidos em um texto verde abaixo do título e acima da descrição. Os campos dão aos clientes em potencial uma ideia da página que eles acessarão no seu site depois de clicar no anúncio. Assim, os textos inseridos nos campos devem descrever o produto ou serviço promovido no anúncio em mais detalhes.</p>
-                                <div className="display-path-container">
-                                    <span>{`${(() => {
-                                        try { return new URL(campaignData.finalUrl).hostname }
-                                        catch { return 'seusite.com' }
-                                    })()}/`}</span>
-                                    <EditableField
-                                        initialValue={campaignData.displayPath1}
-                                        onSave={(v) => handleUpdateData(['displayPath1'], v)}
-                                        onCopy={handleCopy}
-                                        maxLength={15}
-                                    />
-                                    <span>/</span>
-                                    <EditableField
-                                        initialValue={campaignData.displayPath2}
-                                        onSave={(v) => handleUpdateData(['displayPath2'], v)}
-                                        onCopy={handleCopy}
-                                        maxLength={15}
-                                    />
-                                </div>
-                            </ResultCard>
-
-                            <ResultCard 
-                                icon="🔑" 
-                                title="Palavras-chave"
-                                headerContent={<button className="copy-all-button" onClick={handleCopyAllKeywords}>Copiar Todas</button>}
-                            >
-                                <h4>Ampla</h4>
-                                <p className="keyword-type-description">Seu anúncio será exibido para pesquisas que incluam sinônimos, variações relacionadas e erros de digitação da sua palavra-chave. É a correspondência mais flexível.</p>
-                                <ul>{campaignData.keywords.broad.map((kw, i) => <li key={`b-${i}`}><EditableField initialValue={kw} onSave={(v) => handleUpdateData(['keywords', 'broad', i], v)} onCopy={handleCopy} /></li>)}</ul>
-                                
-                                <h4>Frase</h4>
-                                <p className="keyword-type-description">Seu anúncio aparece para pesquisas que contêm sua palavra-chave frase, na mesma ordem, mas com palavras adicionais antes ou depois.</p>
-                                <ul>{campaignData.keywords.phrase.map((kw, i) => <li key={`p-${i}`}><EditableField initialValue={`"${kw.replace(/"/g, '')}"`} onSave={(v) => handleUpdateData(['keywords', 'phrase', i], v.replace(/"/g, ''))} onCopy={handleCopy} /></li>)}</ul>
-
-                                <h4>Exata</h4>
-                                <p className="keyword-type-description">O seu anúncio só aparece quando a pesquisa do usuário é a sua palavra-chave exata, ou uma variação muito próxima (como plural ou erro de digitação). É a mais restritiva de todas.</p>
-                                <ul>{campaignData.keywords.exact.map((kw, i) => <li key={`e-${i}`}><EditableField initialValue={`[${kw.replace(/\[|\]/g, '')}]`} onSave={(v) => handleUpdateData(['keywords', 'exact', i], v.replace(/\[|\]/g, ''))} onCopy={handleCopy} /></li>)}</ul>
-                            </ResultCard>
-                            
-                            <ResultCard 
-                                icon="🏷️" 
-                                title="Títulos"
-                                headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.headlines)}>Copiar Todas</button>}
-                            >
-                                <p className="card-description">Quanto mais idéias de títulos você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
-                                <ul>{campaignData.headlines.map((h, i) => <li key={`h-${i}`}><EditableField initialValue={h} onSave={(v) => handleUpdateData(['headlines', i], v)} onCopy={handleCopy} maxLength={30} /></li>)}</ul>
-                            </ResultCard>
-                            
-                            <ResultCard 
-                                icon="📝" 
-                                title="Descrições" 
-                                fullWidth={true}
-                                headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.descriptions)}>Copiar Todas</button>}
-                            >
-                                <p className="card-description">Quanto mais idéias de descrições você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
-                                <ul>{campaignData.descriptions.map((d, i) => <li key={`d-${i}`}><EditableField initialValue={d} onSave={(v) => handleUpdateData(['descriptions', i], v)} onCopy={handleCopy} maxLength={90} /></li>)}</ul>
-                            </ResultCard>
-
-                            <ResultCard 
-                                icon="🔗" 
-                                title="Sitelinks" 
-                                fullWidth={true}
-                                headerContent={<button className="copy-all-button" onClick={handleCopyAllSitelinks}>Copiar Todas</button>}
-                            >
-                                <p className="card-description">Adicione links aos anúncios para direcionar as pessoas a páginas específicas do seu site (por exemplo, a página de um determinado produto ou que mostra o horário de funcionamento da loja).</p>
-                                <div className="sitelink-url-input">
-                                    <label htmlFor="sitelink-base-url">URL Base para Sitelinks:</label>
-                                    <input
-                                        id="sitelink-base-url"
-                                        type="text"
-                                        value={sitelinkBaseUrl}
-                                        onChange={(e) => setSitelinkBaseUrl(e.target.value)}
-                                        placeholder="https://sitedocliente.com"
-                                    />
-                                    <p>
-                                        Insira a <strong className="highlight-white">URL principal sem a / no final</strong> que será usada nos sitelinks. O código de rastreamento será adicionado automaticamente.
-                                    </p>
-                                </div>
-                                <div className="sitelinks-grid">
-                                    {campaignData.sitelinks.map((s, i) => (
-                                        <div key={`sl-${i}`} className="sitelink-item">
-                                            <strong><EditableField initialValue={s.text} onSave={(v) => handleUpdateData(['sitelinks', i, 'text'], v)} onCopy={handleCopy} maxLength={25} /></strong>
-                                            <div className="sitelink-descriptions">
-                                                <EditableField initialValue={s.description1} onSave={(v) => handleUpdateData(['sitelinks', i, 'description1'], v)} onCopy={handleCopy} maxLength={35} />
-                                                <EditableField initialValue={s.description2} onSave={(v) => handleUpdateData(['sitelinks', i, 'description2'], v)} onCopy={handleCopy} maxLength={35} />
-                                            </div>
-                                            <small>{formatSitelinkUrl(sitelinkBaseUrl, i)}</small>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ResultCard>
-                            
-                            <ResultCard 
-                                icon="✨" 
-                                title="Frases de Destaque"
-                                headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.callouts)}>Copiar Todas</button>}
-                            >
-                                <p className="card-description">As frases de destaque podem melhorar seus anúncios de texto por meio da promoção de ofertas exclusivas para os compradores, como frete grátis ou atendimento ao cliente 24 horas.</p>
-                                <ul>{campaignData.callouts.map((c, i) => <li key={`c-${i}`}><EditableField initialValue={c} onSave={(v) => handleUpdateData(['callouts', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
-                            </ResultCard>
-                            
-                            <ResultCard 
-                                icon="📑" 
-                                title="Snippets Estruturados"
-                                headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.structuredSnippets)}>Copiar Todas</button>}
-                            >
-                                <p className="card-description">Snippets estruturados são recursos que destacam aspectos específicos dos seus produtos e serviços. Eles aparecem abaixo do seu anúncio de texto em formato de cabeçalho (por exemplo: "Destinos") e lista de valores (por exemplo: "Havaí, Costa Rica, África do Sul").</p>
-                                <ul>{campaignData.structuredSnippets.map((s, i) => <li key={`s-${i}`}><EditableField initialValue={s} onSave={(v) => handleUpdateData(['structuredSnippets', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
-                            </ResultCard>
-                            
-                           <ResultCard 
-                                icon="⛔" 
-                                title="Palavras-chave Negativas" 
-                                fullWidth={true}
-                                headerContent={
-                                    <button className="copy-all-button" onClick={handleCopyAllNegative}>Copiar Todas</button>
-                                }
-                            >
-                                <p className="card-description">São termos que você adiciona à sua campanha para impedir que seu anúncio seja exibido quando alguém pesquisa por eles. Elas são essenciais para otimizmar o orçamento.</p>
-                                <ul className="negative-keywords-list">
-                                    {campaignData.negativeKeywords.map((n, i) => <li key={`n-${i}`}><EditableField initialValue={n} onSave={(v) => handleUpdateData(['negativeKeywords', i], v)} onCopy={handleCopy} /></li>)}
-                                </ul>
-                            </ResultCard>
+                    {loading && (
+                         <div className="loading-state">
+                            <div className="spinner-large"></div>
+                            <p>Estamos construindo uma Estrutura de Campanhas Google Ads na Rede de Pesquisa...</p>
                         </div>
-                    </div>
-                )}
-                {copiedText && <div className="copy-feedback">Copiado!</div>}
-            </main>
+                    )}
+                    
+                    {campaignData && (
+                        <div className="results-section">
+                            <div className="export-controls">
+                               <h3>Exportar Estrutura</h3>
+                               <div className="export-buttons">
+                                   <button onClick={() => handleExport('txt')}>
+                                       <span role="img" aria-hidden="true">📄</span> Exportar TXT
+                                   </button>
+                                   <button onClick={() => handleExport('csv')}>
+                                       <span role="img" aria-hidden="true">📊</span> Exportar CSV
+                                   </button>
+                                   <button onClick={handlePrint}>
+                                       <span role="img" aria-hidden="true">🖨️</span> Imprimir / PDF
+                                   </button>
+                               </div>
+                           </div>
 
-            <footer>
-                <p>Criado com ❤️ por Ads Flow</p>
-            </footer>
+                             <div className="ad-previews-grid">
+                               {[0, 1, 2].map(i => (
+                                   <AdPreview 
+                                       key={i}
+                                       headline1={campaignData.headlines?.[i % campaignData.headlines.length] || ''}
+                                       headline2={campaignData.headlines?.[(i + 1) % campaignData.headlines.length] || ''}
+                                       description1={campaignData.descriptions?.[i % campaignData.descriptions.length] || ''}
+                                       finalUrl={campaignData.finalUrl}
+                                       displayPath1={campaignData.displayPath1}
+                                   />
+                               ))}
+                           </div>
+                           
+                            <div className="results-grid">
+                                <ResultCard 
+                                    icon="🌐" 
+                                    title="URL Final"
+                                >
+                                    <p className="card-description">Isso vai ser usado para sugerir recursos para seu anúncio.</p>
+                                    <EditableField
+                                        initialValue={campaignData.finalUrl}
+                                        onSave={(v) => handleUpdateData(['finalUrl'], v)}
+                                        onCopy={handleCopy}
+                                    />
+                                </ResultCard>
+
+                                <ResultCard 
+                                    icon="🛣️" 
+                                    title="Caminho de Exibição"
+                                >
+                                    <p className="card-description">Os campos "Caminho" fazem parte do URL de visualização em anúncios responsivos de pesquisa e geralmente são exibidos em um texto verde abaixo do título e acima da descrição. Os campos dão aos clientes em potencial uma ideia da página que eles acessarão no seu site depois de clicar no anúncio. Assim, os textos inseridos nos campos devem descrever o produto ou serviço promovido no anúncio em mais detalhes.</p>
+                                    <div className="display-path-container">
+                                        <span>{`${(() => {
+                                            try { return new URL(campaignData.finalUrl).hostname }
+                                            catch { return 'seusite.com' }
+                                        })()}/`}</span>
+                                        <EditableField
+                                            initialValue={campaignData.displayPath1}
+                                            onSave={(v) => handleUpdateData(['displayPath1'], v)}
+                                            onCopy={handleCopy}
+                                            maxLength={15}
+                                        />
+                                        <span>/</span>
+                                        <EditableField
+                                            initialValue={campaignData.displayPath2}
+                                            onSave={(v) => handleUpdateData(['displayPath2'], v)}
+                                            onCopy={handleCopy}
+                                            maxLength={15}
+                                        />
+                                    </div>
+                                </ResultCard>
+
+                                <ResultCard 
+                                    icon="🔑" 
+                                    title="Palavras-chave"
+                                    headerContent={<button className="copy-all-button" onClick={handleCopyAllKeywords}>Copiar Todas</button>}
+                                >
+                                    <h4>Ampla</h4>
+                                    <p className="keyword-type-description">Seu anúncio será exibido para pesquisas que incluam sinônimos, variações relacionadas e erros de digitação da sua palavra-chave. É a correspondência mais flexível.</p>
+                                    <ul>{campaignData.keywords.broad.map((kw, i) => <li key={`b-${i}`}><EditableField initialValue={kw} onSave={(v) => handleUpdateData(['keywords', 'broad', i], v)} onCopy={handleCopy} /></li>)}</ul>
+                                    
+                                    <h4>Frase</h4>
+                                    <p className="keyword-type-description">Seu anúncio aparece para pesquisas que contêm sua palavra-chave frase, na mesma ordem, mas com palavras adicionais antes ou depois.</p>
+                                    <ul>{campaignData.keywords.phrase.map((kw, i) => <li key={`p-${i}`}><EditableField initialValue={`"${kw.replace(/"/g, '')}"`} onSave={(v) => handleUpdateData(['keywords', 'phrase', i], v.replace(/"/g, ''))} onCopy={handleCopy} /></li>)}</ul>
+
+                                    <h4>Exata</h4>
+                                    <p className="keyword-type-description">O seu anúncio só aparece quando a pesquisa do usuário é a sua palavra-chave exata, ou uma variação muito próxima (como plural ou erro de digitação). É a mais restritiva de todas.</p>
+                                    <ul>{campaignData.keywords.exact.map((kw, i) => <li key={`e-${i}`}><EditableField initialValue={`[${kw.replace(/\[|\]/g, '')}]`} onSave={(v) => handleUpdateData(['keywords', 'exact', i], v.replace(/\[|\]/g, ''))} onCopy={handleCopy} /></li>)}</ul>
+                                </ResultCard>
+                                
+                                <ResultCard 
+                                    icon="🏷️" 
+                                    title="Títulos"
+                                    headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.headlines)}>Copiar Todas</button>}
+                                >
+                                    <p className="card-description">Quanto mais idéias de títulos você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
+                                    <ul>{campaignData.headlines.map((h, i) => <li key={`h-${i}`}><EditableField initialValue={h} onSave={(v) => handleUpdateData(['headlines', i], v)} onCopy={handleCopy} maxLength={30} /></li>)}</ul>
+                                </ResultCard>
+                                
+                                <ResultCard 
+                                    icon="📝" 
+                                    title="Descrições" 
+                                    fullWidth={true}
+                                    headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.descriptions)}>Copiar Todas</button>}
+                                >
+                                    <p className="card-description">Quanto mais idéias de descrições você inserir, maiores serão as chances de o Google Ads veicular anúncios associados às consultas de pesquisa dos clientes em potencial, o que pode melhorar a performance da publicidade.</p>
+                                    <ul>{campaignData.descriptions.map((d, i) => <li key={`d-${i}`}><EditableField initialValue={d} onSave={(v) => handleUpdateData(['descriptions', i], v)} onCopy={handleCopy} maxLength={90} /></li>)}</ul>
+                                </ResultCard>
+
+                                <ResultCard 
+                                    icon="🔗" 
+                                    title="Sitelinks" 
+                                    fullWidth={true}
+                                    headerContent={<button className="copy-all-button" onClick={handleCopyAllSitelinks}>Copiar Todas</button>}
+                                >
+                                    <p className="card-description">Adicione links aos anúncios para direcionar as pessoas a páginas específicas do seu site (por exemplo, a página de um determinado produto ou que mostra o horário de funcionamento da loja).</p>
+                                    <div className="sitelink-url-input">
+                                        <label htmlFor="sitelink-base-url">URL Base para Sitelinks:</label>
+                                        <input
+                                            id="sitelink-base-url"
+                                            type="text"
+                                            value={sitelinkBaseUrl}
+                                            onChange={(e) => setSitelinkBaseUrl(e.target.value)}
+                                            placeholder="https://sitedocliente.com"
+                                        />
+                                        <p>
+                                            Insira a <strong className="highlight-white">URL principal sem a / no final</strong> que será usada nos sitelinks. O código de rastreamento será adicionado automaticamente.
+                                        </p>
+                                    </div>
+                                    <div className="sitelinks-grid">
+                                        {campaignData.sitelinks.map((s, i) => (
+                                            <div key={`sl-${i}`} className="sitelink-item">
+                                                <strong><EditableField initialValue={s.text} onSave={(v) => handleUpdateData(['sitelinks', i, 'text'], v)} onCopy={handleCopy} maxLength={25} /></strong>
+                                                <div className="sitelink-descriptions">
+                                                    <EditableField initialValue={s.description1} onSave={(v) => handleUpdateData(['sitelinks', i, 'description1'], v)} onCopy={handleCopy} maxLength={35} />
+                                                    <EditableField initialValue={s.description2} onSave={(v) => handleUpdateData(['sitelinks', i, 'description2'], v)} onCopy={handleCopy} maxLength={35} />
+                                                </div>
+                                                <small>{formatSitelinkUrl(sitelinkBaseUrl, i)}</small>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ResultCard>
+                                
+                                <ResultCard 
+                                    icon="✨" 
+                                    title="Frases de Destaque"
+                                    headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.callouts)}>Copiar Todas</button>}
+                                >
+                                    <p className="card-description">As frases de destaque podem melhorar seus anúncios de texto por meio da promoção de ofertas exclusivas para os compradores, como frete grátis ou atendimento ao cliente 24 horas.</p>
+                                    <ul>{campaignData.callouts.map((c, i) => <li key={`c-${i}`}><EditableField initialValue={c} onSave={(v) => handleUpdateData(['callouts', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
+                                </ResultCard>
+                                
+                                <ResultCard 
+                                    icon="📑" 
+                                    title="Snippets Estruturados"
+                                    headerContent={<button className="copy-all-button" onClick={() => handleCopyAll(campaignData.structuredSnippets)}>Copiar Todas</button>}
+                                >
+                                    <p className="card-description">Snippets estruturados são recursos que destacam aspectos específicos dos seus produtos e serviços. Eles aparecem abaixo do seu anúncio de texto em formato de cabeçalho (por exemplo: "Destinos") e lista de valores (por exemplo: "Havaí, Costa Rica, África do Sul").</p>
+                                    <ul>{campaignData.structuredSnippets.map((s, i) => <li key={`s-${i}`}><EditableField initialValue={s} onSave={(v) => handleUpdateData(['structuredSnippets', i], v)} onCopy={handleCopy} maxLength={25} /></li>)}</ul>
+                                </ResultCard>
+                                
+                               <ResultCard 
+                                    icon="⛔" 
+                                    title="Palavras-chave Negativas" 
+                                    fullWidth={true}
+                                    headerContent={
+                                        <button className="copy-all-button" onClick={handleCopyAllNegative}>Copiar Todas</button>
+                                    }
+                                >
+                                    <p className="card-description">São termos que você adiciona à sua campanha para impedir que seu anúncio seja exibido quando alguém pesquisa por eles. Elas são essenciais para otimizmar o orçamento.</p>
+                                    <ul className="negative-keywords-list">
+                                        {campaignData.negativeKeywords.map((n, i) => <li key={`n-${i}`}><EditableField initialValue={n} onSave={(v) => handleUpdateData(['negativeKeywords', i], v)} onCopy={handleCopy} /></li>)}
+                                    </ul>
+                                </ResultCard>
+                            </div>
+                        </div>
+                    )}
+                    {copiedText && <div className="copy-feedback">Copiado!</div>}
+                </main>
+
+                <footer>
+                    <p>Criado com ❤️ por Ads Flow</p>
+                </footer>
+            </div>
 
             {showAuthModal && <AuthModal 
                 onClose={() => setShowAuthModal(false)}
@@ -942,7 +947,7 @@ const App: React.FC = () => {
                     }
                 }}
             />}
-        </div>
+        </>
     );
 };
 
