@@ -1,7 +1,19 @@
+
 import React, { useState, useEffect, FC, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleGenAI, Type } from "@google/genai";
+import { createClient, User, SupabaseClient } from '@supabase/supabase-js';
 
+// --- SUPABASE CLIENT SETUP ---
+// ATENÇÃO: Substitua pelas suas chaves do Supabase.
+// FIX: Explicitly type constants as string to allow comparison with placeholder values without a TypeScript error.
+const SUPABASE_URL: string = 'https://iwnljbfpymqdcfafwbkg.supabase.co'; 
+const SUPABASE_ANON_KEY: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bmxqYmZweW1xZGNmYWZ3YmtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyNDI0NDYsImV4cCI6MjA3MzgxODQ0Nn0.L_E66_28CKWIZ1Tx1otFzt3zlN--qwqXxsE466GsBqs';
+
+const isSupabaseConfigured = SUPABASE_URL !== 'COLE_SUA_URL_SUPABASE_AQUI' && SUPABASE_ANON_KEY !== 'COLE_SUA_CHAVE_ANON_AQUI';
+
+// Initialize Supabase client only if configured
+const supabase: SupabaseClient | null = isSupabaseConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 const campaignSchema = {
@@ -64,6 +76,112 @@ interface CampaignData {
     structuredSnippets: string[];
     negativeKeywords: string[];
 }
+
+const ConfigurationWarning: FC = () => (
+    <div className="config-warning">
+        <h2>Configuração Necessária</h2>
+        <p>
+            Por favor, configure suas chaves <strong>SUPABASE_URL</strong> e <strong>SUPABASE_ANON_KEY</strong> no arquivo <code>index.tsx</code> para habilitar a autenticação e o funcionamento completo da aplicação.
+        </p>
+    </div>
+);
+
+
+const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClose, onSuccess }) => {
+    const [mode, setMode] = useState<'login' | 'register'>('login');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+
+    const handleAuth = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!supabase) return;
+
+        setLoading(true);
+        setError('');
+        setMessage('');
+
+        if (mode === 'register') {
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        phone: phone,
+                    }
+                }
+            });
+            if (error) {
+                setError(error.message);
+            } else {
+                setMessage('Verifique seu e-mail para confirmar o cadastro!');
+                // Wait a bit before closing so user can see the message
+                setTimeout(onSuccess, 3000);
+            }
+        } else {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                setError(error.message);
+            } else {
+                onSuccess();
+            }
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="auth-modal-overlay" onClick={onClose}>
+            <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+                <h2>{mode === 'login' ? 'Login' : 'Criar Conta'}</h2>
+                <p>{mode === 'login' ? 'Acesse sua conta para continuar.' : 'Crie uma conta para gerar suas campanhas.'}</p>
+                
+                <div className="auth-mode-toggle">
+                    <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Login</button>
+                    <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Registrar</button>
+                </div>
+
+                <form onSubmit={handleAuth} className="auth-form">
+                    {mode === 'register' && (
+                        <>
+                            <div className="form-group">
+                                <label htmlFor="fullName">Nome Completo</label>
+                                <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="phone">Telefone</label>
+                                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                            </div>
+                        </>
+                    )}
+                    <div className="form-group">
+                        <label htmlFor="email">E-mail</label>
+                        <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Senha</label>
+                        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                        <p className="form-helper-text">Mínimo de 6 caracteres.</p>
+                    </div>
+                    
+                    {error && <p className="error-message">{error}</p>}
+                    {message && <p className="success-message">{message}</p>}
+
+                    <button type="submit" className="generate-button auth-button" disabled={loading}>
+                        {loading ? <div className="spinner"></div> : (mode === 'login' ? 'Entrar' : 'Criar Conta')}
+                    </button>
+                </form>
+                
+                <button className="close-modal-button" onClick={onClose} aria-label="Fechar">×</button>
+            </div>
+        </div>
+    );
+};
+
 
 const EditableField: FC<{
     initialValue: string;
@@ -205,6 +323,81 @@ const AdPreview: FC<{
     );
 };
 
+const SalesPage: FC = () => {
+    const handleScrollToGenerator = () => {
+        document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    return (
+        <div className="sales-page">
+            <section className="hero-section">
+                <h1>Crie Anúncios no Google Ads <br/> <span className="title-gradient">10x Mais Rápido</span></h1>
+                <p className="subtitle">Apresentamos o Ads Flow: a nova geração de criação de campanhas para a Rede de Pesquisa no Google. Nossa tecnologia de ponta analisa e estrutura anúncios para você em segundos, garantindo que sua marca, produto ou serviço esteja sempre à frente da concorrência.</p>
+                <button className="generate-button hero-cta" onClick={handleScrollToGenerator}>
+                    Começar Agora
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                </button>
+            </section>
+
+            <section className="sales-section">
+                <h2>Como Funciona? Simples Assim.</h2>
+                <div className="how-it-works-grid">
+                    <div className="step-card">
+                        <div className="step-number">1</div>
+                        <h3>Descreva</h3>
+                        <p>Forneça o contexto da sua marca, produto ou serviço. Quanto mais detalhes, melhor será o resultado.</p>
+                    </div>
+                    <div className="step-card">
+                        <div className="step-number">2</div>
+                        <h3>Gere</h3>
+                        <p>Com um clique, o Ads Flow cria uma estrutura completa com palavras-chave, títulos, descrições e muito mais.</p>
+                    </div>
+                    <div className="step-card">
+                        <div className="step-number">3</div>
+                        <h3>Lance</h3>
+                        <p>Revise, edite se necessário, exporte em seu formato preferido e suba sua campanha para o Google Ads.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section className="sales-section">
+                 <h2>Tudo que você precisa para uma campanha de sucesso</h2>
+                 <div className="features-grid">
+                     <div className="feature-card">
+                        <div className="feature-icon">🔑</div>
+                        <h3>Palavras-chave Relevantes</h3>
+                        <p>Receba listas de palavras-chave nos 3 tipos de correspondência: Ampla, Frase e Exata.</p>
+                     </div>
+                     <div className="feature-card">
+                        <div className="feature-icon">✍️</div>
+                        <h3>Anúncios Persuasivos</h3>
+                        <p>Gere múltiplos títulos e descrições otimizados para atrair cliques e conversões.</p>
+                     </div>
+                     <div className="feature-card">
+                        <div className="feature-icon">🔗</div>
+                        <h3>Extensões de Anúncios</h3>
+                        <p>Crie Sitelinks, Frases de Destaque e Snippets Estruturados para aumentar a relevância do seu anúncio.</p>
+                     </div>
+                      <div className="feature-card">
+                        <div className="feature-icon">⛔</div>
+                        <h3>Negativação Inteligente</h3>
+                        <p>Receba uma lista extensa de palavras-chave negativas para evitar gastos com tráfego indesejado.</p>
+                     </div>
+                      <div className="feature-card">
+                        <div className="feature-icon">✏️</div>
+                        <h3>Totalmente Editável</h3>
+                        <p>Ajuste e refine qualquer parte da estrutura gerada para que ela se alinhe perfeitamente à sua estratégia.</p>
+                     </div>
+                      <div className="feature-card">
+                        <div className="feature-icon">🚀</div>
+                        <h3>Exporte e Utilize</h3>
+                        <p>Exporte a campanha completa em TXT, CSV ou PDF, pronta para ser implementada no Google Ads.</p>
+                     </div>
+                 </div>
+            </section>
+        </div>
+    );
+};
 
 const App: React.FC = () => {
     const [prompt, setPrompt] = useState('');
@@ -214,16 +407,51 @@ const App: React.FC = () => {
     const [copiedText, setCopiedText] = useState<string | null>(null);
     const [theme, setTheme] = useState('dark');
     const [sitelinkBaseUrl, setSitelinkBaseUrl] = useState('');
+    const [user, setUser] = useState<User | null>(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+
+    // Render a warning if Supabase is not configured
+    if (!isSupabaseConfigured || !supabase) {
+        return (
+            <div className="container">
+                 <header>
+                    <h1 className="app-name"><span>Ads Flow</span></h1>
+                </header>
+                <main>
+                    <ConfigurationWarning />
+                </main>
+            </div>
+        );
+    }
 
     useEffect(() => {
         document.body.className = `${theme}-mode`;
     }, [theme]);
+
+    useEffect(() => {
+        const getSession = async () => {
+            const { data } = await supabase.auth.getSession();
+            setUser(data.session?.user ?? null);
+        };
+        getSession();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     const toggleTheme = () => {
         setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
     };
 
     const handleGenerate = async () => {
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
+
         if (!prompt) {
             setError('Por favor, descreva o contexto da sua campanha.');
             return;
@@ -474,12 +702,24 @@ const App: React.FC = () => {
         <div className="container">
             <header>
                  <h1 className="app-name"><span>Ads Flow</span></h1>
-                 <button onClick={toggleTheme} className="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-                    {theme === 'dark' ? '🌙' : '☀️'}
-                </button>
+                 <div className="header-controls">
+                    {user ? (
+                        <div className="user-info">
+                            <span>{user.email}</span>
+                            <button onClick={() => supabase.auth.signOut()} className="logout-button">Sair</button>
+                        </div>
+                    ) : (
+                        <button onClick={() => setShowAuthModal(true)}>Login / Registrar</button>
+                    )}
+                    <button onClick={toggleTheme} className="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+                        {theme === 'dark' ? '🌙' : '☀️'}
+                    </button>
+                 </div>
             </header>
             
-            <main>
+            <SalesPage />
+
+            <main id="generator">
                 <div className="input-section">
                     <h2 className="title-neon">
                         É Inteligênte, É Único, É <span className="title-gradient">Ads Flow</span>
@@ -677,7 +917,7 @@ const App: React.FC = () => {
                                     <button className="copy-all-button" onClick={handleCopyAllNegative}>Copiar Todas</button>
                                 }
                             >
-                                <p className="card-description">São termos que você adiciona à sua campanha para impedir que seu anúncio seja exibido quando alguém pesquisa por eles. Elas são essenciais para otimizar o orçamento.</p>
+                                <p className="card-description">São termos que você adiciona à sua campanha para impedir que seu anúncio seja exibido quando alguém pesquisa por eles. Elas são essenciais para otimizmar o orçamento.</p>
                                 <ul className="negative-keywords-list">
                                     {campaignData.negativeKeywords.map((n, i) => <li key={`n-${i}`}><EditableField initialValue={n} onSave={(v) => handleUpdateData(['negativeKeywords', i], v)} onCopy={handleCopy} /></li>)}
                                 </ul>
@@ -687,6 +927,21 @@ const App: React.FC = () => {
                 )}
                 {copiedText && <div className="copy-feedback">Copiado!</div>}
             </main>
+
+            <footer>
+                <p>Criado com ❤️ por Ads Flow</p>
+            </footer>
+
+            {showAuthModal && <AuthModal 
+                onClose={() => setShowAuthModal(false)}
+                onSuccess={() => {
+                    setShowAuthModal(false);
+                    // Automatically trigger generation after successful login/signup if prompt is filled
+                    if (prompt) {
+                        handleGenerate();
+                    }
+                }}
+            />}
         </div>
     );
 };
