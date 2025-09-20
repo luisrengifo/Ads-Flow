@@ -92,18 +92,35 @@ const PLAN_LIMITS: Record<Plan, number> = {
 
 // --- COMPONENTS ---
 
-const ConfigurationWarning: FC = () => (
-    <div className="config-warning">
-        <h2>Configuração Necessária</h2>
-{/* FIX: Updated environment variable name for Gemini API key in the warning message. */}
-        <p>
-            A aplicação não está configurada corretamente. Por favor, configure as variáveis de ambiente <code>API_KEY</code>, <code>VITE_SUPABASE_URL</code>, e <code>VITE_SUPABASE_ANON_KEY</code> em seu provedor de hospedagem (ex: Vercel) para habilitar o funcionamento completo.
-        </p>
-         <p>
-            Para desenvolvimento local, crie um arquivo <code>.env.local</code> na raiz do projeto com estas chaves.
-        </p>
-    </div>
-);
+const ConfigurationWarning: FC = () => {
+    const missingKeys: string[] = [];
+    if (!process.env.API_KEY) {
+        missingKeys.push('API_KEY');
+    }
+    if (!import.meta.env.VITE_SUPABASE_URL) {
+        missingKeys.push('VITE_SUPABASE_URL');
+    }
+    if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        missingKeys.push('VITE_SUPABASE_ANON_KEY');
+    }
+
+    return (
+        <div className="config-warning">
+            <h2>Configuração Necessária</h2>
+            {missingKeys.length > 0 && (
+                 <p>
+                    A aplicação não está configurada corretamente. As seguintes variáveis de ambiente estão faltando: <code>{missingKeys.join('</code>, <code>')}</code>.
+                </p>
+            )}
+            <p>
+                Por favor, configure as variáveis de ambiente em seu provedor de hospedagem (ex: Vercel) para habilitar o funcionamento completo. Após adicionar as chaves, você deve fazer o "redeploy" do seu projeto.
+            </p>
+            <p>
+                Para desenvolvimento local, crie um arquivo <code>.env.local</code> na raiz do projeto com estas chaves.
+            </p>
+        </div>
+    );
+};
 
 const AuthModal: FC<{ onClose: () => void; onSuccess: () => void; }> = ({ onClose, onSuccess }) => {
     const [mode, setMode] = useState<'login' | 'register'>('login');

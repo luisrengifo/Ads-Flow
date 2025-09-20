@@ -1,7 +1,6 @@
-// FIX: Replaced the 'vite/client' reference that was causing an error
-// with manual type definitions for Vite's `import.meta.env`. This resolves
-// the "Cannot find type definition file for 'vite/client'" error and the
-// subsequent errors in `src/index.tsx` related to `import.meta.env`.
+// Fix: Manually define types for environment variables to resolve compilation errors.
+// This replaces the failing `/// <reference types="vite/client" />` directive
+// and provides explicit types for `import.meta.env` and `process.env`.
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string;
   readonly VITE_SUPABASE_ANON_KEY: string;
