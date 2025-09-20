@@ -1111,7 +1111,9 @@ const App: React.FC = () => {
                 </main>
 
                 <footer>
-                    <p>Criado com ❤️ por Ads Flow</p>
+                    <p>
+                        Criado com ❤️ por <a href="https://luisrengifo.com.br/" target="_blank" rel="noopener noreferrer">Luis Rengifo</a>
+                    </p>
                 </footer>
             </div>
 
