@@ -326,8 +326,8 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
         if (Array.isArray(value) && value.length > 0) {
           if (typeof value[0] === 'string') {
             return <details key={key} className="result-section"><summary>{title} ({value.length})</summary><div className="result-content">{renderList(value as string[])}</div></details>;
-          } else if (typeof value[0] === 'object' && value[0].text) { // Sitelinks
-            return <details key={key} className="result-section"><summary>{title} ({value.length})</summary><div className="result-content"><ul className="result-list">{value.map((s, i) => <li key={i}><strong>{s.text}</strong><br />{s.description1}<br />{s.description2}</li>)}</ul></div></details>;
+          } else if (typeof value[0] === 'object' && value[0] !== null && (value[0] as any).text) { // Sitelinks
+            return <details key={key} className="result-section"><summary>{title} ({value.length})</summary><div className="result-content"><ul className="result-list">{value.map((s: any, i) => <li key={i}><strong>{s.text}</strong><br />{s.description1}<br />{s.description2}</li>)}</ul></div></details>;
           }
         }
         return null;
@@ -335,9 +335,9 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
        <details className="result-section">
         <summary>Palavras-chave</summary>
         <div className="result-content keyword-group">
-            <h4>Correspondência Ampla ({campaign.keywords.broad.length})</h4>{renderList(campaign.keywords.broad)}
-            <h4>Correspondência de Frase ({campaign.keywords.phrase.length})</h4>{renderList(campaign.keywords.phrase.map(k => `"${k}"`))}
-            <h4>Correspondência Exata ({campaign.keywords.exact.length})</h4>{renderList(campaign.keywords.exact.map(k => `[${k}]`))}
+            <h4>Correspondência Ampla ({(campaign.keywords?.broad ?? []).length})</h4>{renderList(campaign.keywords?.broad ?? [])}
+            <h4>Correspondência de Frase ({(campaign.keywords?.phrase ?? []).length})</h4>{renderList((campaign.keywords?.phrase ?? []).map(k => `"${k}"`))}
+            <h4>Correspondência Exata ({(campaign.keywords?.exact ?? []).length})</h4>{renderList((campaign.keywords?.exact ?? []).map(k => `[${k}]`))}
         </div>
       </details>
     </div>

@@ -165,7 +165,7 @@ Deno.serve(async (req) => {
         
         await supabaseAdmin.from('profiles').update(updateData).eq('id', user.id);
 
-        return new Response(JSON.stringify(JSON.parse(responseText)), {
+        return new Response(responseText, {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
         });
