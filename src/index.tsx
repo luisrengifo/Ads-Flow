@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { createClient, Session, AuthError } from '@supabase/supabase-js';
+import { createClient, Session } from '@supabase/supabase-js';
 import { Analytics } from '@vercel/analytics/react';
 import './index.css';
 
 // --- Type Definitions ---
+type Sitelink = {
+  text: string;
+  description1: string;
+  description2: string;
+};
+
 type CampaignData = {
   finalUrl: string;
   displayPath1: string;
@@ -17,11 +23,7 @@ type CampaignData = {
     phrase: string[];
     exact: string[];
   };
-  sitelinks: {
-    text: string;
-    description1: string;
-    description2: string;
-  }[];
+  sitelinks: Sitelink[];
   callouts: string[];
   structuredSnippets: string[];
   negativeKeywords: string[];
@@ -50,7 +52,6 @@ const AuthModal = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   
-  // UX Enhancements State
   const [showPassword, setShowPassword] = useState(false);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -246,8 +247,6 @@ const CampaignGenerator = ({ session }: { session: Session }) => {
 };
 
 const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt: string }) => {
-  const renderList = (items: string[]) => <ul className="result-list">{items.map((item, i) => <li key={i}>{item}</li>)}</ul>;
-
   const handlePrint = async () => {
     try {
       const response = await fetch('/print_template.html');
@@ -257,32 +256,30 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
 
       const escapeHtml = (text: string) => text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-      // Build campaign content HTML
       let contentHtml = '';
-      contentHtml += `<h2>Títulos (Headlines)</h2><div class="section-content"><ul>${campaign.headlines.map(h => `<li>${escapeHtml(h)}</li>`).join('')}</ul></div>`;
-      contentHtml += `<h2>Descrições</h2><div class="section-content"><ul>${campaign.descriptions.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul></div>`;
+      contentHtml += `<h2>Títulos (Headlines)</h2><div class="section-content"><ul>${(campaign.headlines ?? []).map(h => `<li>${escapeHtml(h)}</li>`).join('')}</ul></div>`;
+      contentHtml += `<h2>Descrições</h2><div class="section-content"><ul>${(campaign.descriptions ?? []).map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul></div>`;
       
       contentHtml += `<h2>Palavras-chave</h2>
         <table class="keywords-table">
           <thead><tr><th>Ampla</th><th>Frase</th><th>Exata</th></tr></thead>
           <tbody><tr>
-            <td><ul>${campaign.keywords.broad.map(k => `<li>${escapeHtml(k)}</li>`).join('')}</ul></td>
-            <td><ul>${campaign.keywords.phrase.map(k => `<li>"${escapeHtml(k)}"</li>`).join('')}</ul></td>
-            <td><ul>${campaign.keywords.exact.map(k => `<li>[${escapeHtml(k)}]</li>`).join('')}</ul></td>
+            <td><ul>${(campaign.keywords?.broad ?? []).map(k => `<li>${escapeHtml(k)}</li>`).join('')}</ul></td>
+            <td><ul>${(campaign.keywords?.phrase ?? []).map(k => `<li>"${escapeHtml(k)}"</li>`).join('')}</ul></td>
+            <td><ul>${(campaign.keywords?.exact ?? []).map(k => `<li>[${escapeHtml(k)}]</li>`).join('')}</ul></td>
           </tr></tbody>
         </table>`;
 
-      contentHtml += `<h2>Sitelinks</h2>${campaign.sitelinks.map(s => `
+      contentHtml += `<h2>Sitelinks</h2>${(campaign.sitelinks ?? []).map(s => `
         <div class="sitelink-item">
           <h4>${escapeHtml(s.text)}</h4>
           <p>${escapeHtml(s.description1)}<br/>${escapeHtml(s.description2)}</p>
         </div>`).join('')}`;
 
-      contentHtml += `<h2>Frases de Destaque (Callouts)</h2><div class="section-content"><ul>${campaign.callouts.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul></div>`;
-      contentHtml += `<h2>Snippets Estruturados</h2><div class="section-content"><ul>${campaign.structuredSnippets.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>`;
-      contentHtml += `<h2>Palavras-chave Negativas</h2><ul class="negative-keywords-list">${campaign.negativeKeywords.map(n => `<li>-${escapeHtml(n)}</li>`).join('')}</ul>`;
+      contentHtml += `<h2>Frases de Destaque (Callouts)</h2><div class="section-content"><ul>${(campaign.callouts ?? []).map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul></div>`;
+      contentHtml += `<h2>Snippets Estruturados</h2><div class="section-content"><ul>${(campaign.structuredSnippets ?? []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>`;
+      contentHtml += `<h2>Palavras-chave Negativas</h2><ul class="negative-keywords-list">${(campaign.negativeKeywords ?? []).map(n => `<li>-${escapeHtml(n)}</li>`).join('')}</ul>`;
 
-      // Replace placeholders
       template = template.replace(/\[CAMPAIGN_TITLE\]/g, escapeHtml(`${campaign.companyName} - Campanha Google Ads`));
       template = template.replace(/\[PROMPT\]/g, escapeHtml(prompt));
       template = template.replace(/\[GENERATION_DATE\]/g, new Date().toLocaleDateString('pt-BR'));
@@ -303,6 +300,22 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
     }
   };
 
+  const renderList = (items: string[] | undefined) => {
+      if (!items || items.length === 0) return <p>N/A</p>;
+      return <ul className="result-list">{items.map((item, i) => <li key={i}>{item}</li>)}</ul>;
+  };
+  
+  const renderSitelinks = (items: Sitelink[] | undefined) => {
+    if (!items || items.length === 0) return <p>N/A</p>;
+    return (
+      <ul className="result-list">
+        {items.map((s, i) => (
+          <li key={i}><strong>{s.text}</strong><br />{s.description1}<br />{s.description2}</li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div className="result-container">
       <div className="result-header">
@@ -315,31 +328,28 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
       <details className="result-section" open>
         <summary>Informações Gerais</summary>
         <div className="result-content">
-          <p><strong>Empresa:</strong> {campaign.companyName}</p>
-          <p><strong>URL Final:</strong> <a href={campaign.finalUrl} target="_blank" rel="noopener noreferrer">{campaign.finalUrl}</a></p>
-          <p><strong>Caminho de Exibição:</strong> /{campaign.displayPath1}/{campaign.displayPath2}</p>
+          <p><strong>Empresa:</strong> {campaign.companyName ?? 'N/A'}</p>
+          <p><strong>URL Final:</strong> <a href={campaign.finalUrl} target="_blank" rel="noopener noreferrer">{campaign.finalUrl ?? 'N/A'}</a></p>
+          <p><strong>Caminho de Exibição:</strong> /{campaign.displayPath1 ?? ''}/{campaign.displayPath2 ?? ''}</p>
         </div>
       </details>
-      {Object.entries(campaign).map(([key, value]) => {
-        if (['companyName', 'finalUrl', 'displayPath1', 'displayPath2', 'keywords'].includes(key)) return null;
-        const title = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-        if (Array.isArray(value) && value.length > 0) {
-          if (typeof value[0] === 'string') {
-            return <details key={key} className="result-section"><summary>{title} ({value.length})</summary><div className="result-content">{renderList(value as string[])}</div></details>;
-          } else if (typeof value[0] === 'object' && value[0] !== null && (value[0] as any).text) { // Sitelinks
-            return <details key={key} className="result-section"><summary>{title} ({value.length})</summary><div className="result-content"><ul className="result-list">{value.map((s: any, i) => <li key={i}><strong>{s.text}</strong><br />{s.description1}<br />{s.description2}</li>)}</ul></div></details>;
-          }
-        }
-        return null;
-      })}
-       <details className="result-section">
+      
+      <details className="result-section"><summary>Títulos ({(campaign.headlines ?? []).length})</summary><div className="result-content">{renderList(campaign.headlines)}</div></details>
+      <details className="result-section"><summary>Descrições ({(campaign.descriptions ?? []).length})</summary><div className="result-content">{renderList(campaign.descriptions)}</div></details>
+
+      <details className="result-section">
         <summary>Palavras-chave</summary>
         <div className="result-content keyword-group">
-            <h4>Correspondência Ampla ({(campaign.keywords?.broad ?? []).length})</h4>{renderList(campaign.keywords?.broad ?? [])}
+            <h4>Correspondência Ampla ({(campaign.keywords?.broad ?? []).length})</h4>{renderList(campaign.keywords?.broad)}
             <h4>Correspondência de Frase ({(campaign.keywords?.phrase ?? []).length})</h4>{renderList((campaign.keywords?.phrase ?? []).map(k => `"${k}"`))}
             <h4>Correspondência Exata ({(campaign.keywords?.exact ?? []).length})</h4>{renderList((campaign.keywords?.exact ?? []).map(k => `[${k}]`))}
         </div>
       </details>
+      
+      <details className="result-section"><summary>Sitelinks ({(campaign.sitelinks ?? []).length})</summary><div className="result-content">{renderSitelinks(campaign.sitelinks)}</div></details>
+      <details className="result-section"><summary>Frases de Destaque ({(campaign.callouts ?? []).length})</summary><div className="result-content">{renderList(campaign.callouts)}</div></details>
+      <details className="result-section"><summary>Snippets Estruturados ({(campaign.structuredSnippets ?? []).length})</summary><div className="result-content">{renderList(campaign.structuredSnippets)}</div></details>
+      <details className="result-section"><summary>Palavras-chave Negativas ({(campaign.negativeKeywords ?? []).length})</summary><div className="result-content">{renderList(campaign.negativeKeywords)}</div></details>
     </div>
   );
 };
@@ -366,7 +376,7 @@ const App = () => {
     }, []);
 
     if (loading) {
-      return <div>Carregando...</div>; // Simple loader
+      return <div style={{textAlign: 'center', paddingTop: '4rem'}}>Carregando...</div>;
     }
     
     if (session) {
@@ -380,7 +390,6 @@ const App = () => {
     return <SalesPage onLoginClick={() => setShowLogin(true)} />;
 }
 
-// --- DOM Rendering ---
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error("Could not find root element to mount the application.");
 
