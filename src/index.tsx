@@ -1,58 +1,17 @@
 import React, { useState, useEffect, FC, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { GoogleGenAI, Type } from "@google/genai";
 import { createClient, User, SupabaseClient } from '@supabase/supabase-js';
 import './index.css';
 
 // --- ENVIRONMENT & CLIENT SETUP ---
-// FIX: Use process.env.API_KEY for the Gemini API key per coding guidelines.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const isConfigured = process.env.API_KEY && SUPABASE_URL && SUPABASE_ANON_KEY;
+const isConfigured = SUPABASE_URL && SUPABASE_ANON_KEY;
 
 const supabase: SupabaseClient | null = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-const ai: GoogleGenAI | null = isConfigured ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
-// --- TYPES AND SCHEMAS ---
-const campaignSchema = {
-    type: Type.OBJECT,
-    properties: {
-        finalUrl: { type: Type.STRING, description: "A URL final relevante para o produto/serviço. Ex: https://example.com/produto" },
-        displayPath1: { type: Type.STRING, description: "Primeiro caminho de exibição, até 15 caracteres." },
-        displayPath2: { type: Type.STRING, description: "Segundo caminho de exibição, até 15 caracteres." },
-        headlines: { type: Type.ARRAY, items: { type: Type.STRING }, description: "15 títulos de anúncio, cada um com até 30 caracteres." },
-        descriptions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 descrições de anúncio, cada uma com até 90 caracteres." },
-        companyName: { type: Type.STRING, description: "O nome da empresa, até 25 caracteres." },
-        keywords: {
-            type: Type.OBJECT,
-            properties: {
-                broad: { type: Type.ARRAY, items: { type: Type.STRING }, description: "5 palavras-chave de correspondência ampla." },
-                phrase: { type: Type.ARRAY, items: { type: Type.STRING }, description: "5 palavras-chave de correspondência de frase (sem aspas)." },
-                exact: { type: Type.ARRAY, items: { type: Type.STRING }, description: "5 palavras-chave de correspondência exata (sem colchetes)." },
-            },
-            required: ["broad", "phrase", "exact"]
-        },
-        sitelinks: {
-            type: Type.ARRAY,
-            description: "6 extensões de sitelink.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    text: { type: Type.STRING, description: "O texto do sitelink, até 25 caracteres." },
-                    description1: { type: Type.STRING, description: "Primeira linha de descrição do sitelink, até 35 caracteres." },
-                    description2: { type: Type.STRING, description: "Segunda linha de descrição do sitelink, até 35 caracteres." }
-                },
-                required: ["text", "description1", "description2"]
-            }
-        },
-        callouts: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 frases de destaque, cada uma com até 25 caracteres." },
-        structuredSnippets: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 snippets estruturados, cada um com até 25 caracteres." },
-        negativeKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Uma lista de pelo menos 100 palavras-chave negativas relevantes." }
-    },
-    required: ["finalUrl", "displayPath1", "displayPath2", "headlines", "descriptions", "companyName", "keywords", "sitelinks", "callouts", "structuredSnippets", "negativeKeywords"]
-};
-
+// --- TYPES ---
 type Plan = 'free' | 'business' | 'agency';
 
 interface UserProfile {
@@ -94,9 +53,6 @@ const PLAN_LIMITS: Record<Plan, number> = {
 
 const ConfigurationWarning: FC = () => {
     const missingKeys: string[] = [];
-    if (!process.env.API_KEY) {
-        missingKeys.push('API_KEY');
-    }
     if (!import.meta.env.VITE_SUPABASE_URL) {
         missingKeys.push('VITE_SUPABASE_URL');
     }
@@ -512,7 +468,7 @@ const App: React.FC = () => {
 
 
     // Render a warning if the app is not configured
-    if (!isConfigured || !supabase || !ai) {
+    if (!isConfigured || !supabase) {
         return (
             <div className="container">
                  <header>
@@ -532,17 +488,18 @@ const App: React.FC = () => {
     }, [theme]);
     
     const fetchUserProfile = async (currentUser: User) => {
+        if (!supabase) return;
         const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
         if (data) {
             setProfile(data);
         } else if (error) {
             console.error('Error fetching profile:', error);
-            // Optionally create a profile if it doesn't exist for some reason
         }
     };
 
 
     useEffect(() => {
+        if (!supabase) return;
         const getSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
@@ -580,33 +537,21 @@ const App: React.FC = () => {
             return;
         }
         
-        // --- LIMIT CHECK LOGIC ---
+        // --- CLIENT-SIDE LIMIT PRE-CHECK ---
+        // The server will perform the definitive check. This is for immediate UX feedback.
         const now = new Date();
         const lastReset = new Date(profile.generation_reset_date);
         let currentUsage = profile.generations_used;
 
-        // Reset if the current month is different from the last reset month
         if (now.getFullYear() > lastReset.getFullYear() || now.getMonth() > lastReset.getMonth()) {
             currentUsage = 0;
-            const { data: updatedProfile, error: updateError } = await supabase
-                .from('profiles')
-                .update({ generations_used: 0, generation_reset_date: now.toISOString() })
-                .eq('id', user.id)
-                .select()
-                .single();
-            if (updateError) console.error("Error resetting usage:", updateError);
-            else setProfile(updatedProfile); // Update state with fresh data from DB
         }
-
         const userLimit = PLAN_LIMITS[profile.plan] ?? 2;
-
         if (currentUsage >= userLimit) {
             setError("Você atingiu o limite de gerações do seu plano. Faça upgrade para continuar.");
             setShowUpgradeModal(true);
             return;
         }
-
-        // --- END LIMIT CHECK ---
 
         setLoading(true);
         setError('');
@@ -614,34 +559,39 @@ const App: React.FC = () => {
         setSitelinkBaseUrl('');
 
         try {
-            const result = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: `Gere uma estrutura completa de campanha de Google Ads (Rede de Pesquisa) para o seguinte contexto: "${prompt}". A resposta DEVE ser um JSON válido que siga o schema fornecido.`,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: campaignSchema,
-                },
-            });
-
-            const responseText = result.text;
-            if (!responseText) {
-                setError('A resposta da IA estava vazia. Tente novamente ou ajuste seu pedido.');
-                return;
+            if (!supabase) throw new Error("Supabase client not initialized.");
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('Usuário não autenticado.');
             }
-
-            const parsedData = JSON.parse(responseText);
+    
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-campaign`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ prompt }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Erro: ${response.statusText}`);
+            }
+    
+            const parsedData = await response.json();
             setCampaignData(parsedData);
             setSitelinkBaseUrl(parsedData.finalUrl || 'https://sitedocliente.com');
-
-            // --- INCREMENT USAGE ---
-            const newUsage = currentUsage + 1;
-            const { error: updateError } = await supabase.from('profiles').update({ generations_used: newUsage }).eq('id', user.id);
-            if (updateError) console.error("Failed to update generation count:", updateError);
-            else setProfile(prev => prev ? { ...prev, generations_used: newUsage } : null);
+            
+            // Refetch profile to get updated usage count from the server
+            if (user) {
+                fetchUserProfile(user);
+            }
 
         } catch (e) {
             console.error(e);
-            setError('Ocorreu um erro ao gerar a campanha. Tente novamente.');
+            setError(e instanceof Error ? e.message : 'Ocorreu um erro ao gerar a campanha. Tente novamente.');
         } finally {
             setLoading(false);
         }
@@ -889,7 +839,7 @@ const App: React.FC = () => {
                         {user ? (
                             <div className="user-info">
                                 {renderUserPlan()}
-                                <button onClick={() => supabase.auth.signOut()} className="logout-button">Sair</button>
+                                <button onClick={() => supabase && supabase.auth.signOut()} className="logout-button">Sair</button>
                             </div>
                         ) : (
                             <button onClick={() => setShowAuthModal(true)}>Login / Registrar</button>
