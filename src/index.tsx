@@ -57,15 +57,29 @@ const ThemeToggleButton = ({ theme, onClick }: { theme: Theme; onClick: () => vo
 
 const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+  const [fullNameError, setFullNameError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFullName = e.target.value;
+    setFullName(newFullName);
+    if (!isLogin && !newFullName.trim()) {
+        setFullNameError('O nome completo é obrigatório.');
+    } else {
+        setFullNameError(null);
+    }
+  };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
@@ -74,6 +88,28 @@ const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
       setEmailError('Por favor, insira um e-mail válido.');
     } else {
       setEmailError(null);
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+
+    if (value.length > 10) {
+        value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (value.length > 6) {
+        value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (value.length > 2) {
+        value = value.replace(/(\d{2})(\d*)/, '($1) $2');
+    }
+    
+    setPhone(value);
+
+    const rawPhone = value.replace(/\D/g, '');
+    if (!isLogin && (rawPhone.length < 10 || rawPhone.length > 11)) {
+        setPhoneError('O telefone é obrigatório (10 ou 11 dígitos).');
+    } else {
+        setPhoneError(null);
     }
   };
 
@@ -95,22 +131,57 @@ const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
 
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (emailError || passwordError || !email || !password) {
-      setError("Por favor, corrija os erros antes de continuar.");
-      return;
-    }
-
-    setLoading(true);
     setError(null);
-    
-    const action = isLogin ? supabase.auth.signInWithPassword : supabase.auth.signUp;
-    const { error: authError } = await action({ email, password });
 
-    if (authError) {
-      setError(authError.message);
-    } else if (!isLogin) {
-      onSignupSuccess();
+    let hasErrors = false;
+    if (!validateEmail(email)) {
+        setEmailError('Por favor, insira um e-mail válido.');
+        hasErrors = true;
     }
+    if (!validatePassword(password)) {
+        setPasswordError('A senha deve ter pelo menos 6 caracteres.');
+        hasErrors = true;
+    }
+
+    if (!isLogin) {
+        if (!fullName.trim()) {
+            setFullNameError('O nome completo é obrigatório.');
+            hasErrors = true;
+        }
+        const rawPhone = phone.replace(/\D/g, '');
+        if (rawPhone.length < 10 || rawPhone.length > 11) {
+            setPhoneError('O telefone é obrigatório (10 ou 11 dígitos).');
+            hasErrors = true;
+        }
+    }
+
+    if (hasErrors) {
+        return;
+    }
+    
+    setLoading(true);
+    
+    if (isLogin) {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) setError(authError.message);
+    } else {
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            phone: phone,
+          },
+        },
+      });
+      if (authError) {
+        setError(authError.message);
+      } else {
+        onSignupSuccess();
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -139,11 +210,25 @@ const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
         <div className="divider">OU</div>
         
         <form onSubmit={handleAuthAction}>
+          {!isLogin && (
+            <div className="form-group">
+                <label htmlFor="fullName">Nome Completo</label>
+                <input id="fullName" className="input-field" type="text" placeholder="Seu nome completo" value={fullName} onChange={handleFullNameChange} required />
+                {fullNameError && <p className="error-text">{fullNameError}</p>}
+            </div>
+          )}
           <div className="form-group">
             <label htmlFor="email">E-mail</label>
             <input id="email" className="input-field" type="email" placeholder="seu@email.com" value={email} onChange={handleEmailChange} required />
             {emailError && <p className="error-text">{emailError}</p>}
           </div>
+          {!isLogin && (
+            <div className="form-group">
+                <label htmlFor="phone">Telefone</label>
+                <input id="phone" className="input-field" type="tel" placeholder="(XX) XXXXX-XXXX" value={phone} onChange={handlePhoneChange} maxLength={15} required />
+                {phoneError && <p className="error-text">{phoneError}</p>}
+            </div>
+          )}
           <div className="form-group">
             <label htmlFor="password">Senha</label>
             <div className="password-input-wrapper">
