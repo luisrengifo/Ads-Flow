@@ -526,16 +526,30 @@ const CampaignGenerator = ({ session, theme, onToggleTheme }: { session: Session
             });
 
             if (functionError) {
-                const context = (functionError as any).context;
-                let errorMessage = functionError.message;
-                if (context && context.json) {
-                    try { const errorBody = await context.json(); if (errorBody.error) errorMessage = errorBody.error; } catch (e) {}
-                }
-                throw new Error(errorMessage);
+                throw functionError;
             }
             setCampaign(data);
         } catch (e: any) {
-            setError(e.message);
+            console.error("Erro ao invocar a função de campanha:", e);
+
+            let userMessage = "Ocorreu um erro inesperado. Por favor, tente novamente.";
+
+            if (e.message?.includes('Failed to send a request')) {
+                userMessage = "Falha na comunicação com o servidor. Verifique sua conexão com a internet e tente novamente.";
+            } else if (e.context && typeof e.context.json === 'function') {
+                try {
+                    const errorDetails = await e.context.json();
+                    if (errorDetails.error) {
+                        userMessage = errorDetails.error;
+                    }
+                } catch (jsonError) {
+                    userMessage = `O servidor retornou um erro, mas a resposta não pôde ser lida. (Código: ${e.context.status})`;
+                }
+            } else if (e.message) {
+                userMessage = e.message;
+            }
+
+            setError(userMessage);
         } finally {
             setLoading(false);
         }

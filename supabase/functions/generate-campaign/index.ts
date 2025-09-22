@@ -9,6 +9,7 @@ declare const Deno: any;
 // CORS headers to allow requests from the web app
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
