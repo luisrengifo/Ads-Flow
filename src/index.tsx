@@ -719,6 +719,12 @@ const App = () => {
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            // If a session is established and there's a hash in the URL,
+            // it's likely from an auth redirect. Let's clean up the URL.
+            if (session && window.location.hash) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+
             setSession(session);
             setLoading(false);
             if (session) {
