@@ -361,7 +361,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                                 <li>Suporte Dedicado 24/7</li>
                                 <li>Acesso à API</li>
                             </ul>
-                            <a href="https://pay.kiwify.com.br/1YNBAZH" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">Assinar Agora</a>
+                            <a href="https://pay.kiwify.com.br/1YNBAZH" target="_blank" rel="noopener noreferrer" className="btn btn-primary">Assinar Agora</a>
                         </div>
                     </div>
                 </div>

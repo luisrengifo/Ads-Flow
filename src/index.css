@@ -650,7 +650,8 @@ body {
 }
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 340px));
+    justify-content: center;
     gap: 2rem;
     align-items: stretch;
 }
