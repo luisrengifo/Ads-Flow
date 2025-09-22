@@ -258,7 +258,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* How It Works Section */}
             <section id="how-it-works" className="how-it-works-section">
                 <div className="sales-container">
-                    <h2>Como Funciona em 3 Passos Simples</h2>
+                    <h2>Como o Gerador de Campanhas Google Ads Funciona</h2>
                     <div className="steps-container">
                         <div className="step">
                             <div className="step-icon">
@@ -288,37 +288,37 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* Features Section */}
             <section id="features" className="features-section">
                 <div className="sales-container">
-                    <h2>Tudo o que você precisa para uma campanha de sucesso</h2>
+                    <h2>Recursos para uma Campanha Google Ads de Sucesso</h2>
                     <div className="features-grid">
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" /></svg></div>
                             <h3>Estrutura Completa</h3>
-                            <p>Receba Títulos, Descrições, Palavras-chave (Ampla, Frase, Exata), Sitelinks, Callouts e mais.</p>
+                            <p>Receba uma estrutura otimizada com grupos de anúncios, títulos, descrições, palavras-chave, sitelinks e mais.</p>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 13-1.4-4-5.1 5.1" /><path d="M12 2a10 10 0 1 0 10 10" /><path d="M2 12h4" /><path d="m20.5 7.5-.4.4" /><path d="M12 22v-4" /></svg></div>
                             <h3>Palavras-chave Relevantes</h3>
-                            <p>Sugestões de palavras-chave baseadas no seu negócio para atrair o público certo.</p>
+                            <p>Sugestões de palavras-chave baseadas na intenção de busca do seu público-alvo para atrair os clientes certos.</p>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2" /><path d="M11 13h4" /><path d="M5 21h14" /><path d="M5 3h14" /><path d="M17 3v18" /><path d="M7 3v18" /></svg></div>
                             <h3>Anúncios Persuasivos</h3>
-                            <p>Textos de anúncio otimizados para cliques e conversões, seguindo as melhores práticas.</p>
+                            <p>Textos de anúncio criados com técnicas de copywriting e otimizados para aumentar o CTR e as conversões.</p>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg></div>
                             <h3>Extensões de Anúncio</h3>
-                            <p>Gere Sitelinks, Callouts e Snippets Estruturados para aumentar a visibilidade do seu anúncio.</p>
+                            <p>Gere Sitelinks, Callouts e Snippets Estruturados para aumentar a visibilidade e o Índice de Qualidade do seu anúncio.</p>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 6 0" /></svg></div>
                             <h3>Palavras-chave Negativas</h3>
-                            <p>Obtenha uma lista extensa de palavras-chave negativas para evitar gastos desnecessários.</p>
+                            <p>Obtenha uma lista extensa de palavras-chave negativas para evitar cliques irrelevantes e gastos desnecessários.</p>
                         </div>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg></div>
                             <h3>Exportação Fácil</h3>
-                            <p>Exporte sua campanha em formato PDF para compartilhar com sua equipe ou clientes.</p>
+                            <p>Exporte sua campanha completa em formato PDF para compartilhar com sua equipe ou clientes.</p>
                         </div>
                     </div>
                 </div>
@@ -327,7 +327,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* Pricing Section */}
             <section id="pricing" className="pricing-section">
                 <div className="sales-container">
-                    <h2>Planos Flexíveis para Todos</h2>
+                    <h2>Planos e Preços Acessíveis</h2>
                     <div className="pricing-grid">
                         <div className="pricing-card">
                             <h3>Free</h3>
@@ -369,7 +369,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* CTA Section */}
             <section className="cta-section">
                 <div className="sales-container">
-                    <h2>Pronto para otimizar suas campanhas?</h2>
+                    <h2>Otimize suas Campanhas Google Ads Hoje</h2>
                     <p>Comece a usar o Ads Flow hoje mesmo e veja a diferença que a IA pode fazer.</p>
                     <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Criar minha primeira campanha</button>
                 </div>
