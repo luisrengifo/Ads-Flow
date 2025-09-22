@@ -141,10 +141,12 @@ Deno.serve(async (req) => {
         
         const result = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `Gere uma estrutura completa de campanha de Google Ads (Rede de Pesquisa) para o seguinte contexto: "${prompt}". A resposta DEVE ser um JSON válido que siga o schema fornecido.`,
+            contents: prompt,
             config: {
+                systemInstruction: `Você é um especialista em Google Ads criando uma estrutura de campanha na Rede de Pesquisa. Com base na descrição do usuário, gere uma estrutura completa. A resposta DEVE ser um JSON válido que siga o schema fornecido. Seja rápido e conciso.`,
                 responseMimeType: "application/json",
                 responseSchema: campaignSchema,
+                thinkingConfig: { thinkingBudget: 0 },
             },
         });
         
