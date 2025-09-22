@@ -446,7 +446,12 @@ const CampaignGenerator = ({ session, theme, onToggleTheme }: { session: Session
               {loading ? 'Gerando...' : 'Gerar Campanha'}
           </button>
           
-          {loading && <p className="feedback-text">Gerando campanha, isso pode levar um momento...</p>}
+          {loading && (
+            <div className="loader-container">
+                <div className="spinner"></div>
+                <p>Gerando campanha, isso pode levar um momento...</p>
+            </div>
+          )}
           {error && <p className="error-text"><strong>Erro:</strong> {error}</p>}
           {campaign && <CampaignDisplay campaign={campaign} prompt={prompt} />}
       </div>
