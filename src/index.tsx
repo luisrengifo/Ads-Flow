@@ -718,23 +718,23 @@ const App = () => {
     }, [theme]);
 
     useEffect(() => {
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setLoading(false);
-        };
-        getSession();
-
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
-            if (session) setShowLogin(false);
+            setLoading(false);
+            if (session) {
+                setShowLogin(false);
+            }
         });
 
         return () => subscription.unsubscribe();
     }, []);
 
     if (loading) {
-      return <div style={{textAlign: 'center', paddingTop: '4rem'}}>Carregando...</div>;
+      return (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+              <div className="spinner"></div>
+          </div>
+      );
     }
     
     if (session) {
