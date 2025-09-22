@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createClient, Session } from '@supabase/supabase-js';
@@ -258,28 +259,28 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* How It Works Section */}
             <section id="how-it-works" className="how-it-works-section">
                 <div className="sales-container">
-                    <h2>Como o Gerador de Campanhas Google Ads Funciona</h2>
+                    <h2>Como o Gerador de Anúncios na Rede de Pesquisa Funciona ?</h2>
                     <div className="steps-container">
                         <div className="step">
                             <div className="step-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
                             </div>
                             <h3>1. Descreva seu Negócio</h3>
-                            <p>Forneça uma breve descrição do seu produto ou serviço. Quanto mais detalhes, melhor a campanha.</p>
+                            <p>Forneça uma breve descrição da sua Marca, Produto ou Serviço. Entre: Geolocalização, benefícios e detalhes, melhor será a sua estrutura.</p>
                         </div>
                         <div className="step">
                             <div className="step-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /><path d="M2 8c0-2.2.7-4.3 2-6" /><path d="M22 8c0-2.2-.7-4.3-2-6" /><path d="m9 2 1 1 1-1" /><path d="m13 2 1 1 1-1" /></svg>
                             </div>
                             <h3>2. Gere com um Clique</h3>
-                            <p>Nossa IA analisará sua descrição e criará uma estrutura de campanha completa em segundos.</p>
+                            <p>O Ads Flow analisará sua descrição e criará uma estrutura de Anúncios na Rede de Pesquisa completa em segundos.</p>
                         </div>
                         <div className="step">
                             <div className="step-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                             </div>
                             <h3>3. Exporte e Use</h3>
-                            <p>Revise, ajuste e exporte sua campanha como um PDF profissional para usar no Google Ads.</p>
+                            <p>Revise, ajuste e exporte sua estrutura de Anúncios na Rede de Pesquisa como um PDF profissional para usar no Google Ads.</p>
                         </div>
                     </div>
                 </div>
@@ -288,7 +289,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* Features Section */}
             <section id="features" className="features-section">
                 <div className="sales-container">
-                    <h2>Recursos para uma Campanha Google Ads de Sucesso</h2>
+                    <h2>Tudo o que você precisa para um Anúncio na Rede de Pesquisa de sucesso</h2>
                     <div className="features-grid">
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" /></svg></div>
@@ -318,7 +319,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                         <div className="feature-item">
                             <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg></div>
                             <h3>Exportação Fácil</h3>
-                            <p>Exporte sua campanha completa em formato PDF para compartilhar com sua equipe ou clientes.</p>
+                            <p>Exporte sua estrutura de Anúncio completa em formato PDF para compartilhar onde e como quiser.</p>
                         </div>
                     </div>
                 </div>
@@ -331,7 +332,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                     <div className="pricing-grid">
                         <div className="pricing-card">
                             <h3>Free</h3>
-                            <p className="plan-description">Para experimentar e criar suas primeiras campanhas.</p>
+                            <p className="plan-description">Para experimentar e criar seus primeiros Anúncios.</p>
                             <div className="price">Grátis</div>
                             <ul>
                                 <li>2 Gerações por Mês</li>
@@ -369,8 +370,8 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* CTA Section */}
             <section className="cta-section">
                 <div className="sales-container">
-                    <h2>Otimize suas Campanhas Google Ads Hoje</h2>
-                    <p>Comece a usar o Ads Flow hoje mesmo e veja a diferença que a IA pode fazer.</p>
+                    <h2>Pronto para otimizar seus Anúncios?</h2>
+                    <p>Comece a usar o Ads Flow hoje mesmo e veja a mágica acontecer em segundos</p>
                     <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Criar minha primeira campanha</button>
                 </div>
             </section>
