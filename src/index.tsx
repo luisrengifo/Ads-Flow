@@ -166,13 +166,205 @@ const AuthModal = () => {
   );
 };
 
-const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => (
-  <div className="sales-page">
-    <h1>Crie Campanhas para Google Ads 10x mais Rápido com IA</h1>
-    <p>O Ads Flow gera estruturas completas com palavras-chave, anúncios e extensões em segundos. Otimize seu tempo e maximize seus resultados.</p>
-    <button className="btn btn-primary" onClick={onLoginClick}>Comece Agora</button>
-  </div>
+const SalesPageHeader = ({ onLoginClick }: { onLoginClick: () => void }) => (
+    <header className="sales-header">
+        <div className="sales-container">
+            <span className="logo">Ads Flow</span>
+            <nav className="sales-nav">
+                <a href="#features">Funcionalidades</a>
+                <a href="#pricing">Preços</a>
+                <button onClick={onLoginClick} className="btn btn-secondary btn-login">Entrar</button>
+            </nav>
+            <button className="mobile-nav-toggle" aria-label="Toggle navigation" onClick={() => {
+                document.querySelector('.sales-nav')?.classList.toggle('active');
+            }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </header>
 );
+
+const SalesPageFooter = () => (
+    <footer className="sales-footer">
+        <div className="sales-container">
+            <p>&copy; {new Date().getFullYear()} Ads Flow. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+);
+
+
+const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
+    useEffect(() => {
+        const nav = document.querySelector('.sales-nav');
+        const links = nav?.querySelectorAll('a, button');
+        const toggle = document.querySelector('.mobile-nav-toggle');
+
+        const closeMenu = () => nav?.classList.remove('active');
+
+        const handleLinkClick = (e: Event) => {
+            const target = e.currentTarget as HTMLAnchorElement;
+            const href = target.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+            }
+            closeMenu();
+        };
+
+        links?.forEach(link => link.addEventListener('click', handleLinkClick));
+        
+        const handleClickOutside = (event: MouseEvent) => {
+            if (nav?.classList.contains('active') && nav && !nav.contains(event.target as Node) && toggle && !toggle.contains(event.target as Node)) {
+                closeMenu();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            links?.forEach(link => link.removeEventListener('click', handleLinkClick));
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+    <div className="sales-page-wrapper">
+        <SalesPageHeader onLoginClick={onLoginClick} />
+        <main>
+            {/* Hero Section */}
+            <section className="hero-section">
+                <div className="sales-container">
+                    <h1>Crie Campanhas para Google Ads 10x mais Rápido com IA</h1>
+                    <p className="subtitle">O Ads Flow gera estruturas completas com palavras-chave, anúncios e extensões em segundos. Otimize seu tempo e maximize seus resultados.</p>
+                    <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Comece Agora de Graça</button>
+                    <p className="sub-cta">Não é necessário cartão de crédito.</p>
+                </div>
+            </section>
+
+            {/* How It Works Section */}
+            <section id="how-it-works" className="how-it-works-section">
+                <div className="sales-container">
+                    <h2>Como Funciona em 3 Passos Simples</h2>
+                    <div className="steps-container">
+                        <div className="step">
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
+                            </div>
+                            <h3>1. Descreva seu Negócio</h3>
+                            <p>Forneça uma breve descrição do seu produto ou serviço. Quanto mais detalhes, melhor a campanha.</p>
+                        </div>
+                        <div className="step">
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /><path d="M2 8c0-2.2.7-4.3 2-6" /><path d="M22 8c0-2.2-.7-4.3-2-6" /><path d="m9 2 1 1 1-1" /><path d="m13 2 1 1 1-1" /></svg>
+                            </div>
+                            <h3>2. Gere com um Clique</h3>
+                            <p>Nossa IA analisará sua descrição e criará uma estrutura de campanha completa em segundos.</p>
+                        </div>
+                        <div className="step">
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                            </div>
+                            <h3>3. Exporte e Use</h3>
+                            <p>Revise, ajuste e exporte sua campanha como um PDF profissional para usar no Google Ads.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section id="features" className="features-section">
+                <div className="sales-container">
+                    <h2>Tudo o que você precisa para uma campanha de sucesso</h2>
+                    <div className="features-grid">
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" /></svg></div>
+                            <h3>Estrutura Completa</h3>
+                            <p>Receba Títulos, Descrições, Palavras-chave (Ampla, Frase, Exata), Sitelinks, Callouts e mais.</p>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 13-1.4-4-5.1 5.1" /><path d="M12 2a10 10 0 1 0 10 10" /><path d="M2 12h4" /><path d="m20.5 7.5-.4.4" /><path d="M12 22v-4" /></svg></div>
+                            <h3>Palavras-chave Relevantes</h3>
+                            <p>Sugestões de palavras-chave baseadas no seu negócio para atrair o público certo.</p>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2" /><path d="M11 13h4" /><path d="M5 21h14" /><path d="M5 3h14" /><path d="M17 3v18" /><path d="M7 3v18" /></svg></div>
+                            <h3>Anúncios Persuasivos</h3>
+                            <p>Textos de anúncio otimizados para cliques e conversões, seguindo as melhores práticas.</p>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg></div>
+                            <h3>Extensões de Anúncio</h3>
+                            <p>Gere Sitelinks, Callouts e Snippets Estruturados para aumentar a visibilidade do seu anúncio.</p>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 6 0" /></svg></div>
+                            <h3>Palavras-chave Negativas</h3>
+                            <p>Obtenha uma lista extensa de palavras-chave negativas para evitar gastos desnecessários.</p>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg></div>
+                            <h3>Exportação Fácil</h3>
+                            <p>Exporte sua campanha em formato PDF para compartilhar com sua equipe ou clientes.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="pricing" className="pricing-section">
+                <div className="sales-container">
+                    <h2>Planos Flexíveis para Todos</h2>
+                    <div className="pricing-grid">
+                        <div className="pricing-card">
+                            <h3>Free</h3>
+                            <p className="plan-description">Para experimentar e criar suas primeiras campanhas.</p>
+                            <div className="price">Grátis</div>
+                            <ul>
+                                <li>2 Gerações por Mês</li>
+                                <li>Funcionalidades Essenciais</li>
+                                <li>Exportação em PDF</li>
+                            </ul>
+                            <button className="btn btn-primary" onClick={onLoginClick}>Comece Agora</button>
+                        </div>
+                        <div className="pricing-card popular">
+                            <h3>Business</h3>
+                            <p className="plan-description">Para profissionais e pequenas empresas.</p>
+                            <div className="price">Em Breve</div>
+                            <ul>
+                                <li>15 Gerações por Mês</li>
+                                <li>Todas as Funcionalidades</li>
+                                <li>Suporte Prioritário</li>
+                            </ul>
+                            <button className="btn btn-secondary" disabled>Em Breve</button>
+                        </div>
+                        <div className="pricing-card">
+                            <h3>Agency</h3>
+                            <p className="plan-description">Para agências e uso intensivo.</p>
+                            <div className="price">Em Breve</div>
+                            <ul>
+                                <li>Gerações Ilimitadas</li>
+                                <li>Suporte Dedicado 24/7</li>
+                                <li>Acesso à API</li>
+                            </ul>
+                            <button className="btn btn-secondary" disabled>Em Breve</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="cta-section">
+                <div className="sales-container">
+                    <h2>Pronto para otimizar suas campanhas?</h2>
+                    <p>Comece a usar o Ads Flow hoje mesmo e veja a diferença que a IA pode fazer.</p>
+                    <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Criar minha primeira campanha</button>
+                </div>
+            </section>
+        </main>
+        <SalesPageFooter />
+    </div>
+    );
+};
 
 const CampaignGenerator = ({ session }: { session: Session }) => {
     const [prompt, setPrompt] = useState('');
