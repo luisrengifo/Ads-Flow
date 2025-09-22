@@ -199,7 +199,7 @@ const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick:
 const SalesPageFooter = () => (
     <footer className="sales-footer">
         <div className="sales-container">
-            <p>Copyright © Ads Flow | Todos os direitos reservados | Criado com ❤ <a href="https://luisrengifo.com.br/" target="_blank" rel="noopener noreferrer">Luis Rengifo</a></p>
+            <p>Copyright © Ads Flow | Todos os direitos reservados | Criado com <span className="heart">❤</span> <a href="https://luisrengifo.com.br/" target="_blank" rel="noopener noreferrer">Luis Rengifo</a></p>
         </div>
     </footer>
 );

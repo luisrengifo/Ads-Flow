@@ -751,6 +751,10 @@ body {
   color: var(--text-link);
 }
 
+.sales-footer .heart {
+  color: var(--color-danger);
+}
+
 /* Loading Spinner */
 .loader-container {
   display: flex;
