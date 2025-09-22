@@ -5,6 +5,8 @@ import { Analytics } from '@vercel/analytics/react';
 import './index.css';
 
 // --- Type Definitions ---
+type Theme = 'light' | 'dark';
+
 type Sitelink = {
   text: string;
   description1: string;
@@ -43,6 +45,15 @@ const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email
 const validatePassword = (password: string) => password.length >= 6;
 
 // --- UI Components ---
+const ThemeToggleButton = ({ theme, onClick }: { theme: Theme; onClick: () => void }) => (
+    <button onClick={onClick} className="theme-toggle-btn" aria-label={`Mudar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}>
+        {theme === 'light' ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        )}
+    </button>
+);
 
 const AuthModal = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -154,7 +165,7 @@ const AuthModal = () => {
           <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Cadastrar')}</button>
         </form>
         {error && <p className="error-text" style={{textAlign: 'center', marginTop: '1rem'}}>{error}</p>}
-        {message && <p className="feedback-text" style={{textAlign: 'center', marginTop: '1rem', color: '#28a745'}}>{message}</p>}
+        {message && <p className="feedback-text" style={{textAlign: 'center', marginTop: '1rem', color: 'var(--color-success)'}}>{message}</p>}
         <div className="auth-modal-switch">
           {isLogin ? 'Não tem uma conta?' : 'Já tem uma conta?'}
           <button onClick={() => { setIsLogin(!isLogin); setError(null); setMessage(null); }}>
@@ -166,7 +177,7 @@ const AuthModal = () => {
   );
 };
 
-const SalesPageHeader = ({ onLoginClick }: { onLoginClick: () => void }) => (
+const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void }) => (
     <header className="sales-header">
         <div className="sales-container">
             <span className="logo">Ads Flow</span>
@@ -174,6 +185,7 @@ const SalesPageHeader = ({ onLoginClick }: { onLoginClick: () => void }) => (
                 <a href="#features">Funcionalidades</a>
                 <a href="#pricing">Preços</a>
                 <button onClick={onLoginClick} className="btn btn-secondary btn-login">Entrar</button>
+                <ThemeToggleButton theme={theme} onClick={onToggleTheme} />
             </nav>
             <button className="mobile-nav-toggle" aria-label="Toggle navigation" onClick={() => {
                 document.querySelector('.sales-nav')?.classList.toggle('active');
@@ -193,7 +205,7 @@ const SalesPageFooter = () => (
 );
 
 
-const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
+const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void }) => {
     useEffect(() => {
         const nav = document.querySelector('.sales-nav');
         const links = nav?.querySelectorAll('a, button');
@@ -208,7 +220,9 @@ const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
                 e.preventDefault();
                 document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
             }
-            closeMenu();
+            if (target.tagName.toLowerCase() !== 'button' || !target.classList.contains('theme-toggle-btn')) {
+                closeMenu();
+            }
         };
 
         links?.forEach(link => link.addEventListener('click', handleLinkClick));
@@ -229,7 +243,7 @@ const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
 
     return (
     <div className="sales-page-wrapper">
-        <SalesPageHeader onLoginClick={onLoginClick} />
+        <SalesPageHeader onLoginClick={onLoginClick} theme={theme} onToggleTheme={onToggleTheme} />
         <main>
             {/* Hero Section */}
             <section className="hero-section">
@@ -366,7 +380,7 @@ const SalesPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
     );
 };
 
-const CampaignGenerator = ({ session }: { session: Session }) => {
+const CampaignGenerator = ({ session, theme, onToggleTheme }: { session: Session; theme: Theme; onToggleTheme: () => void; }) => {
     const [prompt, setPrompt] = useState('');
     const [campaign, setCampaign] = useState<CampaignData | null>(null);
     const [loading, setLoading] = useState(false);
@@ -409,6 +423,7 @@ const CampaignGenerator = ({ session }: { session: Session }) => {
           <header className="app-header">
               <h1>Gerador de Campanhas</h1>
               <div className="user-info">
+                  <ThemeToggleButton theme={theme} onClick={onToggleTheme} />
                   <span>{session.user.email}</span>
                   <button onClick={handleLogout} className="btn btn-danger">Sair</button>
               </div>
@@ -513,7 +528,7 @@ const CampaignDisplay = ({ campaign, prompt }: { campaign: CampaignData, prompt:
       <div className="result-header">
         <h2>Campanha Gerada</h2>
         <button onClick={handlePrint} className="btn btn-secondary">
-          <span>🖨️</span> Imprimir / Exportar PDF
+          <span role="img" aria-label="Impressora">🖨️</span> Imprimir / Exportar PDF
         </button>
       </div>
 
@@ -550,6 +565,23 @@ const App = () => {
     const [session, setSession] = useState<Session | null>(null);
     const [showLogin, setShowLogin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [theme, setTheme] = useState<Theme>(() => {
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        if (savedTheme) return savedTheme;
+        return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
+
+    const toggleTheme = () => {
+        setTheme(prevTheme => {
+            const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            return newTheme;
+        });
+    };
+
+    useEffect(() => {
+        document.body.className = `${theme}-theme`;
+    }, [theme]);
 
     useEffect(() => {
         const getSession = async () => {
@@ -572,14 +604,14 @@ const App = () => {
     }
     
     if (session) {
-      return <CampaignGenerator session={session} />;
+      return <CampaignGenerator session={session} theme={theme} onToggleTheme={toggleTheme} />;
     }
     
     if (showLogin) {
       return <AuthModal />;
     }
 
-    return <SalesPage onLoginClick={() => setShowLogin(true)} />;
+    return <SalesPage onLoginClick={() => setShowLogin(true)} theme={theme} onToggleTheme={toggleTheme} />;
 }
 
 const rootElement = document.getElementById('root');
