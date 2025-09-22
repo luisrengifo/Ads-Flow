@@ -456,6 +456,18 @@ body {
   padding: 0 1.5rem;
 }
 
+.sales-notification {
+  background-color: var(--color-success);
+  color: var(--bg-primary);
+  padding: 1rem 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+body.light-theme .sales-notification {
+  color: var(--text-on-primary);
+}
+
 /* Header */
 .sales-header {
   background-color: rgba(var(--bg-primary-rgb), 0.75);

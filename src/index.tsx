@@ -55,13 +55,12 @@ const ThemeToggleButton = ({ theme, onClick }: { theme: Theme; onClick: () => vo
     </button>
 );
 
-const AuthModal = () => {
+const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   
   const [showPassword, setShowPassword] = useState(false);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
@@ -103,7 +102,6 @@ const AuthModal = () => {
 
     setLoading(true);
     setError(null);
-    setMessage(null);
     
     const action = isLogin ? supabase.auth.signInWithPassword : supabase.auth.signUp;
     const { error: authError } = await action({ email, password });
@@ -111,9 +109,7 @@ const AuthModal = () => {
     if (authError) {
       setError(authError.message);
     } else if (!isLogin) {
-      setMessage('Cadastro realizado! Por favor, verifique seu e-mail para confirmar a conta.');
-      setEmail('');
-      setPassword('');
+      onSignupSuccess();
     }
     setLoading(false);
   };
@@ -165,10 +161,9 @@ const AuthModal = () => {
           <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Cadastrar')}</button>
         </form>
         {error && <p className="error-text" style={{textAlign: 'center', marginTop: '1rem'}}>{error}</p>}
-        {message && <p className="feedback-text" style={{textAlign: 'center', marginTop: '1rem', color: 'var(--color-success)'}}>{message}</p>}
         <div className="auth-modal-switch">
           {isLogin ? 'Não tem uma conta?' : 'Já tem uma conta?'}
-          <button onClick={() => { setIsLogin(!isLogin); setError(null); setMessage(null); }}>
+          <button onClick={() => { setIsLogin(!isLogin); setError(null); }}>
             {isLogin ? 'Cadastre-se' : 'Faça login'}
           </button>
         </div>
@@ -206,7 +201,7 @@ const SalesPageFooter = () => (
 );
 
 
-const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void }) => {
+const SalesPage = ({ onLoginClick, theme, onToggleTheme, notification }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void; notification: string | null; }) => {
     useEffect(() => {
         const nav = document.querySelector('.sales-nav');
         const links = nav?.querySelectorAll('a, button');
@@ -245,6 +240,11 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
     return (
     <div className="sales-page-wrapper">
         <SalesPageHeader onLoginClick={onLoginClick} theme={theme} onToggleTheme={onToggleTheme} />
+        {notification && (
+            <div className="sales-notification">
+                {notification}
+            </div>
+        )}
         <main>
             {/* Hero Section */}
             <section className="hero-section">
@@ -610,6 +610,7 @@ const App = () => {
     const [session, setSession] = useState<Session | null>(null);
     const [showLogin, setShowLogin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [postSignupMessage, setPostSignupMessage] = useState<string | null>(null);
     const [theme, setTheme] = useState<Theme>(() => {
         return (localStorage.getItem('theme') as Theme | null) || 'dark';
     });
@@ -620,6 +621,11 @@ const App = () => {
             localStorage.setItem('theme', newTheme);
             return newTheme;
         });
+    };
+
+    const handleSignupSuccess = () => {
+        setShowLogin(false);
+        setPostSignupMessage("Cadastro realizado! Verifique seu e-mail para ativar sua conta e acessar a ferramenta.");
     };
 
     useEffect(() => {
@@ -651,10 +657,18 @@ const App = () => {
     }
     
     if (showLogin) {
-      return <AuthModal />;
+      return <AuthModal onSignupSuccess={handleSignupSuccess} />;
     }
 
-    return <SalesPage onLoginClick={() => setShowLogin(true)} theme={theme} onToggleTheme={toggleTheme} />;
+    return <SalesPage 
+      onLoginClick={() => {
+        setShowLogin(true);
+        setPostSignupMessage(null);
+      }} 
+      theme={theme} 
+      onToggleTheme={toggleTheme} 
+      notification={postSignupMessage}
+    />;
 }
 
 const rootElement = document.getElementById('root');
