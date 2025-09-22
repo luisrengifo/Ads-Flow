@@ -697,6 +697,12 @@ body {
     font-weight: 700;
     margin-bottom: 1.5rem;
 }
+.price .price-period {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 0.25rem;
+}
 .pricing-card ul {
     list-style: none;
     padding: 0;

@@ -331,9 +331,9 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                     <h2>Planos e Preços Acessíveis</h2>
                     <div className="pricing-grid">
                         <div className="pricing-card">
-                            <h3>Free</h3>
+                            <h3>Grátis</h3>
                             <p className="plan-description">Para experimentar e criar seus primeiros Anúncios.</p>
-                            <div className="price">Grátis</div>
+                            <div className="price">R$0</div>
                             <ul>
                                 <li>2 Gerações por Mês</li>
                                 <li>Funcionalidades Essenciais</li>
@@ -342,26 +342,26 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                             <button className="btn btn-primary" onClick={onLoginClick}>Comece Agora</button>
                         </div>
                         <div className="pricing-card popular">
-                            <h3>Business</h3>
+                            <h3>Negócio</h3>
                             <p className="plan-description">Para profissionais e pequenas empresas.</p>
-                            <div className="price">Em Breve</div>
+                            <div className="price">R$29,90<span className="price-period">/mês</span></div>
                             <ul>
                                 <li>15 Gerações por Mês</li>
                                 <li>Todas as Funcionalidades</li>
                                 <li>Suporte Prioritário</li>
                             </ul>
-                            <button className="btn btn-secondary" disabled>Em Breve</button>
+                            <a href="https://pay.kiwify.com.br/C1JvCxc" target="_blank" rel="noopener noreferrer" className="btn btn-primary">Assinar Agora</a>
                         </div>
                         <div className="pricing-card">
-                            <h3>Agency</h3>
+                            <h3>Agência</h3>
                             <p className="plan-description">Para agências e uso intensivo.</p>
-                            <div className="price">Em Breve</div>
+                            <div className="price">R$99,90<span className="price-period">/mês</span></div>
                             <ul>
                                 <li>Gerações Ilimitadas</li>
                                 <li>Suporte Dedicado 24/7</li>
                                 <li>Acesso à API</li>
                             </ul>
-                            <button className="btn btn-secondary" disabled>Em Breve</button>
+                            <a href="https://pay.kiwify.com.br/1YNBAZH" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">Assinar Agora</a>
                         </div>
                     </div>
                 </div>
