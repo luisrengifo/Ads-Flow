@@ -25,6 +25,7 @@
   --text-muted: #6b7280;
   --text-on-primary: #010409;
   --text-link: #22d3ee;
+  --text-highlight-strong: #ffffff;
   
   /* Borders */
   --border-color: #30363d;
@@ -68,6 +69,7 @@ body.light-theme {
   --text-muted: #6c757d;
   --text-on-primary: #ffffff;
   --text-link: #007bff;
+  --text-highlight-strong: #000000;
   
   /* Borders */
   --border-color: #dee2e6;
@@ -535,10 +537,10 @@ body {
 }
 
 .hero-section h1 {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
-  max-width: 800px;
+  max-width: 950px;
   margin: 0 auto 1.5rem;
 }
 
@@ -547,6 +549,10 @@ body {
   color: var(--text-muted);
   max-width: 700px;
   margin: 0 auto 2rem;
+}
+
+.hero-section .subtitle strong {
+  color: var(--text-highlight-strong);
 }
 
 .btn-cta {
@@ -787,7 +793,7 @@ body {
 
 /* Responsive Styles */
 @media (max-width: 992px) {
-  .hero-section h1 { font-size: 2.5rem; }
+  .hero-section h1 { font-size: 3rem; }
   .sales-page-wrapper h2 { font-size: 2rem; }
   .pricing-card.popular { transform: scale(1); }
 }
