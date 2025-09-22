@@ -20,7 +20,7 @@ const campaignSchema = {
         finalUrl: { type: Type.STRING, description: "A URL final relevante para o produto/serviço. Ex: https://example.com/produto" },
         displayPath1: { type: Type.STRING, description: "Primeiro caminho de exibição, até 15 caracteres." },
         displayPath2: { type: Type.STRING, description: "Segundo caminho de exibição, até 15 caracteres." },
-        headlines: { type: Type.ARRAY, items: { type: Type.STRING }, description: "15 títulos de anúncio, cada um com até 30 caracteres." },
+        headlines: { type: Type.ARRAY, items: { type: Type.STRING }, description: "5 títulos de anúncio, cada um com até 30 caracteres." },
         descriptions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 descrições de anúncio, cada uma com até 90 caracteres." },
         companyName: { type: Type.STRING, description: "O nome da empresa, até 25 caracteres." },
         keywords: {
@@ -34,7 +34,7 @@ const campaignSchema = {
         },
         sitelinks: {
             type: Type.ARRAY,
-            description: "6 extensões de sitelink.",
+            description: "4 extensões de sitelink.",
             items: {
                 type: Type.OBJECT,
                 properties: {
@@ -45,9 +45,9 @@ const campaignSchema = {
                 required: ["text", "description1", "description2"]
             }
         },
-        callouts: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 frases de destaque, cada uma com até 25 caracteres." },
-        structuredSnippets: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 snippets estruturados, cada um com até 25 caracteres." },
-        negativeKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Uma lista de pelo menos 100 palavras-chave negativas relevantes." }
+        callouts: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 frases de destaque, cada uma com até 25 caracteres." },
+        structuredSnippets: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 snippets estruturados, cada um com até 25 caracteres." },
+        negativeKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Uma lista de 20 palavras-chave negativas relevantes para iniciar." }
     },
     required: ["finalUrl", "displayPath1", "displayPath2", "headlines", "descriptions", "companyName", "keywords", "sitelinks", "callouts", "structuredSnippets", "negativeKeywords"]
 };
