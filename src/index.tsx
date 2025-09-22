@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createClient, Session } from '@supabase/supabase-js';
@@ -200,7 +199,7 @@ const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick:
 const SalesPageFooter = () => (
     <footer className="sales-footer">
         <div className="sales-container">
-            <p>&copy; {new Date().getFullYear()} Ads Flow. Todos os direitos reservados.</p>
+            <p>Copyright © Ads Flow | Todos os direitos reservados | Criado com ❤ <a href="https://luisrengifo.com.br/" target="_blank" rel="noopener noreferrer">Luis Rengifo</a></p>
         </div>
     </footer>
 );
@@ -249,8 +248,8 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="sales-container">
-                    <h1>Crie Anúncios na Rede de Pesquisa para Google Ads 10x mais Rápido</h1>
-                    <p className="subtitle">O Ads Flow gera estruturas completas com palavras-chave, anúncios e extensões em segundos. Otimize seu tempo e maximize seus resultados.</p>
+                    <h1>Crie Anúncios na Rede de Pesquisa para Google Ads <span className="gradient-text">10x mais Rápido</span></h1>
+                    <p className="subtitle">O Ads Flow gera estruturas <strong>completas</strong> com palavras-chave, anúncios e extensões <strong>em segundos.</strong> Otimize seu tempo e <strong>maximize seus resultados.</strong></p>
                     <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Comece Agora de Graça</button>
                     <p className="sub-cta">Não é necessário cartão de crédito.</p>
                 </div>
@@ -372,7 +371,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                 <div className="sales-container">
                     <h2>Pronto para otimizar seus Anúncios?</h2>
                     <p>Comece a usar o Ads Flow hoje mesmo e veja a mágica acontecer em segundos</p>
-                    <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Criar minha primeira campanha</button>
+                    <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Criar meu primeiro Anúncio</button>
                 </div>
             </section>
         </main>

@@ -482,6 +482,14 @@ body {
   color: #4285F4; /* Fallback */
 }
 
+.gradient-text {
+  background: linear-gradient(90deg, #34A853, #FBBC05, #4285F4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #4285F4; /* Fallback */
+}
+
 
 .sales-nav {
   display: flex;
@@ -731,6 +739,16 @@ body {
 }
 .sales-footer p {
   margin: 0;
+}
+
+.sales-footer a {
+  color: inherit;
+  text-decoration: underline;
+  transition: color 0.2s ease-in-out;
+}
+
+.sales-footer a:hover {
+  color: var(--text-link);
 }
 
 /* Loading Spinner */
