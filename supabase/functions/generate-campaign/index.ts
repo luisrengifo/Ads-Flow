@@ -20,8 +20,8 @@ const campaignSchema = {
         finalUrl: { type: Type.STRING, description: "A URL final relevante para o produto/serviço. Ex: https://example.com/produto" },
         displayPath1: { type: Type.STRING, description: "Primeiro caminho de exibição, até 15 caracteres." },
         displayPath2: { type: Type.STRING, description: "Segundo caminho de exibição, até 15 caracteres." },
-        headlines: { type: Type.ARRAY, items: { type: Type.STRING }, description: "15 títulos de anúncio, cada um com até 30 caracteres." },
-        descriptions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 descrições de anúncio, cada uma com até 90 caracteres." },
+        headlines: { type: Type.ARRAY, items: { type: Type.STRING }, description: "8 títulos de anúncio, cada um com até 30 caracteres." },
+        descriptions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 descrições de anúncio, cada uma com até 90 caracteres." },
         companyName: { type: Type.STRING, description: "O nome da empresa, até 25 caracteres." },
         keywords: {
             type: Type.OBJECT,
@@ -34,7 +34,7 @@ const campaignSchema = {
         },
         sitelinks: {
             type: Type.ARRAY,
-            description: "6 extensões de sitelink.",
+            description: "4 extensões de sitelink.",
             items: {
                 type: Type.OBJECT,
                 properties: {
@@ -45,9 +45,9 @@ const campaignSchema = {
                 required: ["text", "description1", "description2"]
             }
         },
-        callouts: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 frases de destaque, cada uma com até 25 caracteres." },
-        structuredSnippets: { type: Type.ARRAY, items: { type: Type.STRING }, description: "10 snippets estruturados, cada um com até 25 caracteres." },
-        negativeKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Uma lista de pelo menos 100 palavras-chave negativas relevantes." }
+        callouts: { type: Type.ARRAY, items: { type: Type.STRING }, description: "6 frases de destaque, cada uma com até 25 caracteres." },
+        structuredSnippets: { type: Type.ARRAY, items: { type: Type.STRING }, description: "6 snippets estruturados, cada um com até 25 caracteres." },
+        negativeKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Uma lista de 20 palavras-chave negativas relevantes." }
     },
     required: ["finalUrl", "displayPath1", "displayPath2", "headlines", "descriptions", "companyName", "keywords", "sitelinks", "callouts", "structuredSnippets", "negativeKeywords"]
 };
@@ -139,10 +139,13 @@ Deno.serve(async (req) => {
         }
         const ai = new GoogleGenAI({ apiKey: API_KEY });
         
+        const systemInstruction = `Você é um especialista em Google Ads. Sua tarefa é criar uma estrutura de campanha para a Rede de Pesquisa, otimizada para performance e relevância, baseada na descrição do negócio fornecida pelo usuário. A resposta DEVE ser um JSON válido que siga o schema fornecido. Seja rápido e conciso.`;
+        
         const result = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `Gere uma estrutura completa de campanha de Google Ads (Rede de Pesquisa) para o seguinte contexto: "${prompt}". A resposta DEVE ser um JSON válido que siga o schema fornecido.`,
+            contents: `Descrição do negócio: "${prompt}"`,
             config: {
+                systemInstruction: systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: campaignSchema,
             },

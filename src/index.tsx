@@ -257,7 +257,7 @@ const AuthModal = ({ onSignupSuccess }: { onSignupSuccess: () => void }) => {
   );
 };
 
-const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void }) => (
+const SalesPageHeader = ({ session, onLoginClick, theme, onToggleTheme }: { session: Session | null; onLoginClick: () => void; theme: Theme; onToggleTheme: () => void }) => (
     <header className="sales-header">
         <div className="sales-container">
             <span className="logo">Ads Flow</span>
@@ -265,7 +265,11 @@ const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick:
                 <a href="#features">Funcionalidades</a>
                 <a href="#pricing">Preços</a>
                 <a href="#faq">FAQ</a>
-                <button onClick={onLoginClick} className="btn btn-secondary btn-login">Entrar</button>
+                {session ? (
+                    <a href="/#/app" className="btn btn-primary btn-login">Acessar App</a>
+                ) : (
+                    <button onClick={onLoginClick} className="btn btn-secondary btn-login">Entrar</button>
+                )}
                 <ThemeToggleButton theme={theme} onClick={onToggleTheme} />
             </nav>
             <button className="mobile-nav-toggle" aria-label="Toggle navigation" onClick={() => {
@@ -277,6 +281,7 @@ const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick:
     </header>
 );
 
+
 const SalesPageFooter = () => (
     <footer className="sales-footer">
         <div className="sales-container">
@@ -286,7 +291,7 @@ const SalesPageFooter = () => (
 );
 
 
-const SalesPage = ({ onLoginClick, theme, onToggleTheme, notification }: { onLoginClick: () => void; theme: Theme; onToggleTheme: () => void; notification: string | null; }) => {
+const SalesPage = ({ session, onLoginClick, theme, onToggleTheme, notification }: { session: Session | null; onLoginClick: () => void; theme: Theme; onToggleTheme: () => void; notification: string | null; }) => {
     useEffect(() => {
         const nav = document.querySelector('.sales-nav');
         const links = nav?.querySelectorAll('a, button');
@@ -297,11 +302,11 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme, notification }: { onLog
         const handleLinkClick = (e: Event) => {
             const target = e.currentTarget as HTMLAnchorElement;
             const href = target.getAttribute('href');
-            if (href && href.startsWith('#')) {
+            if (href && href.startsWith('#') && href.length > 1) { // Check length to avoid empty hash
                 e.preventDefault();
                 document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
             }
-            if (target.tagName.toLowerCase() !== 'button' || !target.classList.contains('theme-toggle-btn')) {
+            if (!target.classList.contains('theme-toggle-btn')) {
                 closeMenu();
             }
         };
@@ -324,7 +329,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme, notification }: { onLog
 
     return (
     <div className="sales-page-wrapper">
-        <SalesPageHeader onLoginClick={onLoginClick} theme={theme} onToggleTheme={onToggleTheme} />
+        <SalesPageHeader session={session} onLoginClick={onLoginClick} theme={theme} onToggleTheme={onToggleTheme} />
         {notification && (
             <div className="sales-notification">
                 {notification}
@@ -562,6 +567,7 @@ const CampaignGenerator = ({ session, theme, onToggleTheme }: { session: Session
           <header className="app-header">
               <h1>Gerador de Campanhas</h1>
               <div className="user-info">
+                  <a href="/#" style={{ color: 'var(--text-link)', textDecoration: 'none', fontWeight: 500 }}>Voltar à Home</a>
                   <ThemeToggleButton theme={theme} onClick={onToggleTheme} />
                   <span>{session.user.email}</span>
                   <button onClick={handleLogout} className="btn btn-danger">Sair</button>
@@ -710,6 +716,7 @@ const App = () => {
     const [showLogin, setShowLogin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [postSignupMessage, setPostSignupMessage] = useState<string | null>(null);
+    const [route, setRoute] = useState(window.location.hash);
     const [theme, setTheme] = useState<Theme>(() => {
         return (localStorage.getItem('theme') as Theme | null) || 'dark';
     });
@@ -724,56 +731,88 @@ const App = () => {
 
     const handleSignupSuccess = () => {
         setShowLogin(false);
-        setPostSignupMessage("Cadastro realizado! Verifique seu e-mail para ativar sua conta e acessar a ferramenta.");
+        setPostSignupMessage("Cadastro realizado! Verifique seu e-mail para ativar sua conta.");
     };
 
     useEffect(() => {
         document.body.className = `${theme}-theme`;
     }, [theme]);
+    
+    useEffect(() => {
+        const handleHashChange = () => setRoute(window.location.hash);
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            // If a session is established and there's a hash in the URL,
-            // it's likely from an auth redirect. Let's clean up the URL.
-            if (session && window.location.hash) {
-                window.history.replaceState(null, '', window.location.pathname);
+            if (_event === 'SIGNED_IN') {
+                window.location.hash = '#/app';
+            } else if (_event === 'SIGNED_OUT') {
+                window.location.hash = '';
             }
-
+            
             setSession(session);
             setLoading(false);
-            if (session) {
-                setShowLogin(false);
-            }
+            
+            if (session) setShowLogin(false);
+        });
+
+        // Check initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
     }, []);
-
-    if (loading) {
-      return (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-              <div className="spinner"></div>
-          </div>
-      );
-    }
     
-    if (session) {
-      return <CampaignGenerator session={session} theme={theme} onToggleTheme={toggleTheme} />;
-    }
+    const renderContent = () => {
+        if (loading) {
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <div className="spinner"></div>
+                </div>
+            );
+        }
     
-    if (showLogin) {
-      return <AuthModal onSignupSuccess={handleSignupSuccess} />;
-    }
+        if (route === '#/app') {
+            if (session) {
+                return <CampaignGenerator session={session} theme={theme} onToggleTheme={toggleTheme} />;
+            }
+            if (showLogin) {
+                return <AuthModal onSignupSuccess={handleSignupSuccess} />;
+            }
+            // If trying to access app route without session, force login modal on top of sales page
+            return (
+                <>
+                    <AuthModal onSignupSuccess={handleSignupSuccess} />
+                    <SalesPage 
+                      session={session}
+                      onLoginClick={() => setShowLogin(true)} 
+                      theme={theme} 
+                      onToggleTheme={toggleTheme} 
+                      notification={postSignupMessage}
+                    />
+                </>
+            );
+        }
 
-    return <SalesPage 
-      onLoginClick={() => {
-        setShowLogin(true);
-        setPostSignupMessage(null);
-      }} 
-      theme={theme} 
-      onToggleTheme={toggleTheme} 
-      notification={postSignupMessage}
-    />;
+        // Default route is sales page
+        if (showLogin) {
+            return <AuthModal onSignupSuccess={handleSignupSuccess} />;
+        }
+
+        return <SalesPage 
+          session={session}
+          onLoginClick={() => setShowLogin(true)} 
+          theme={theme} 
+          onToggleTheme={toggleTheme} 
+          notification={postSignupMessage}
+        />;
+    };
+
+    return renderContent();
 }
 
 const rootElement = document.getElementById('root');
