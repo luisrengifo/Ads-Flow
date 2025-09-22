@@ -649,8 +649,8 @@ body {
     background-color: var(--bg-primary);
 }
 .pricing-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 340px));
     justify-content: center;
     gap: 2rem;
     align-items: stretch;
@@ -663,8 +663,6 @@ body {
     display: flex;
     flex-direction: column;
     background-color: var(--bg-tertiary);
-    width: 100%;
-    max-width: 340px;
 }
 .pricing-card.popular {
     border-color: var(--color-primary);
