@@ -248,7 +248,7 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="sales-container">
-                    <h1>Crie Campanhas para Google Ads 10x mais Rápido com IA</h1>
+                    <h1>Crie Anúncios na Rede de Pesquisa para Google Ads 10x mais Rápido</h1>
                     <p className="subtitle">O Ads Flow gera estruturas completas com palavras-chave, anúncios e extensões em segundos. Otimize seu tempo e maximize seus resultados.</p>
                     <button className="btn btn-primary btn-cta" onClick={onLoginClick}>Comece Agora de Graça</button>
                     <p className="sub-cta">Não é necessário cartão de crédito.</p>
