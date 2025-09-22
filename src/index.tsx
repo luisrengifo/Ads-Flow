@@ -184,6 +184,7 @@ const SalesPageHeader = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick:
             <nav className="sales-nav">
                 <a href="#features">Funcionalidades</a>
                 <a href="#pricing">Preços</a>
+                <a href="#faq">FAQ</a>
                 <button onClick={onLoginClick} className="btn btn-secondary btn-login">Entrar</button>
                 <ThemeToggleButton theme={theme} onClick={onToggleTheme} />
             </nav>
@@ -362,6 +363,45 @@ const SalesPage = ({ onLoginClick, theme, onToggleTheme }: { onLoginClick: () =>
                             </ul>
                             <button className="btn btn-secondary" disabled>Em Breve</button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section id="faq" className="faq-section">
+                <div className="sales-container">
+                    <h2>Perguntas Frequentes</h2>
+                    <div className="faq-accordion">
+                        <details>
+                            <summary>O que é o Ads Flow?</summary>
+                            <p className="faq-answer">
+                                O Ads Flow é uma ferramenta de inteligência artificial projetada para acelerar a criação de campanhas de anúncios para a Rede de Pesquisa do Google Ads. Ele gera estruturas completas, incluindo palavras-chave, títulos, descrições e extensões, em segundos.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>Para quem é o Ads Flow?</summary>
+                            <p className="faq-answer">
+                                É ideal para gestores de tráfego, freelancers, agências de marketing, donos de pequenas empresas e qualquer pessoa que queira otimizar seu tempo e criar campanhas de Google Ads mais eficientes.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>Preciso de conhecimento técnico para usar a ferramenta?</summary>
+                            <p className="faq-answer">
+                                Não! A interface é simples e intuitiva. Basta descrever seu produto ou serviço em linguagem natural, e a nossa IA cuida do resto. A estrutura gerada é um excelente ponto de partida, mesmo para iniciantes.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>O plano gratuito é realmente gratuito?</summary>
+                            <p className="faq-answer">
+                                Sim! Você pode se cadastrar e fazer suas primeiras gerações de campanhas sem custo algum e sem a necessidade de um cartão de crédito. É a nossa forma de você experimentar o poder da ferramenta.
+                            </p>
+                        </details>
+                        <details>
+                            <summary>Posso editar a campanha gerada?</summary>
+                            <p className="faq-answer">
+                                A campanha é gerada em um formato de PDF claro e organizado, que serve como um guia para você implementar no Google Ads. Você pode (e deve!) revisar e ajustar os textos e palavras-chave antes de colocá-los no ar para garantir que estejam perfeitamente alinhados com sua estratégia.
+                            </p>
+                        </details>
                     </div>
                 </div>
             </section>
